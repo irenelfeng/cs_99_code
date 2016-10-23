@@ -1,4 +1,4 @@
-function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma)
+function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors)
 
 %%
 %% The goal of this function is to transform a image with gabor wavelet
@@ -48,6 +48,8 @@ end
 
 if nargin < 4
     Sigma = 2*pi;
+    sizes = 5; 
+    ors = 8;
 end
 
 %% FFT of the image
@@ -88,7 +90,7 @@ end
 GridPosition = [imag(Grid) real(Grid)];
 
 %% setup the paramers
-nScale = 5; nOrientation = 8;
+nScale = sizes; nOrientation = ors;
 xyResL = SizeX; xHalfResL = SizeX/2; yHalfResL = SizeY/2;
 kxFactor = 2*pi/xyResL;
 kyFactor = 2*pi/xyResL;
