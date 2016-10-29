@@ -59,7 +59,7 @@ ImFreq = fft2(Im);
 
 %% generate the grid
 if SizeX==256
-    if GridSize == 0
+    if GridSize == 0 % 256 
         RangeXY = 40:20:220; 
         %% TODO: have an extra param so that is 'top' or 'bottom' 
         % if(strcmp(feat, ) 
@@ -83,8 +83,17 @@ elseif SizeX==128
     [xx,yy] = meshgrid(RangeXY,RangeXY);
     Grid = xx + yy*i;
     Grid = Grid(:);
-else
-    disp('The image has to be 256*256 or 128*128. Please try again');
+elseif SizeX==48
+    if GridSize == 0 % 10 * 10
+        RangeXY = 8:5:40; % but you're only going to get 5 * 5 area actually. okay fine. 
+    else
+        RangeXY = 1:48; % wow just all of it
+    end    
+    [xx,yy] = meshgrid(RangeXY,RangeXY);
+    Grid = xx + yy*i;
+    Grid = Grid(:);
+    
+    disp('The image has to be 256*256 or 128*128 or 48*48. Please try again');
     return;
 end
 GridPosition = [imag(Grid) real(Grid)];
