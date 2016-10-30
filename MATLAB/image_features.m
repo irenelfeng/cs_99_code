@@ -1,8 +1,9 @@
-function features = image_features(filepath, numSizes, numOrientations)
-
-I = imread(char(filepath)); 
-J = imresize(I, [256 256]);
-[JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(J,0,0, 2*pi, numSizes, numOrientations); 
+function features = image_features(imvec, numSizes, numOrientations, mode)
+if nargin < 4
+    mode = 'whole';
+end
+J= reshape(imvec, [48 48])';
+[JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(J,0,0, 2*pi, numSizes, numOrientations, mode); 
 % we can ignore grid pos because they are the same for every image 
 features = [JetsMagnitude(:); JetsPhase(:)];
 %% complex = 0 simple = 0 for 2nd param

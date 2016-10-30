@@ -1,35 +1,13 @@
-function M = model_selection(sizes, orientations, N)
-    if nargin < 3
-        sizes = 5; 
-        orientations = 8; 
+% input: 
+% sizes vector (how many sizes you want to try)
+% orientations vector (how many orientations you want to try)
+% output: 
+function MDL = model_selection(X, Y, sizes, orientations, N)
+    if nargin < 5
+        sizes = 1:3; 
+        orientations = [4,8]; 
         N = 10;
     end
-    %% get all files
-    X = {'cohn-kanade/S010/006/S010_006_01594629.png' 
-        'cohn-kanade/S011/006/S011_006_03142202.png'
-        'cohn-kanade/S014/005/S014_005_02405904.png'
-        'cohn-kanade/S022/003/S022_003_00023018.png'
-        'cohn-kanade/S026/006/S026_006_01384000.png'
-        'cohn-kanade/S032/006/S032_006_01350405.png'
-        'cohn-kanade/S034/005/S034_005_02293929.png'
-        'cohn-kanade/S035/006/S035_006_02501919.png'
-        'cohn-kanade/S037/006/S037_006_00234318.png'
-        'cohn-kanade/S042/006/S042_006_01435709.png'
-        %%'cohn-kanade/S044/003/S044_003_00044801.png'
-        %% sad 
-        'cohn-kanade/S010/002/S010_002_01593902.png'
-        'cohn-kanade/S011/001/S011_001_03141509.png'
-        'cohn-kanade/S014/001/S014_001_02405128.png'
-        'cohn-kanade/S022/001/S022_001_00021417.png'
-        'cohn-kanade/S026/001/S026_001_01383511.png'
-        'cohn-kanade/S032/001/S032_001_01345811.png'
-        'cohn-kanade/S034/001/S034_001_02293403.png'
-        'cohn-kanade/S035/001/S035_001_02500816.png'
-        'cohn-kanade/S037/001/S037_001_00233525.png'
-        'cohn-kanade/S042/001/S042_001_01435126.png'
-        %%'cohn-kanade/S044/001/S044_001_00044207.png'
-        };
-    Y = [0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 ];
     
     rand('twister', 0);
     m = size(X,1);
@@ -52,27 +30,30 @@ function M = model_selection(sizes, orientations, N)
                 trainX = X(train_idxes,:);
                 features = zeros(size(trainX, 1), s*o*100*2); % grid size * 2. 
                 for i=1:size(trainX,1)
-                    features(i, :) = image_features(trainX(i), s, o)'; % call image features on each file 
+                    features(i, :) = image_features(trainX(i,:), s, o)'; % call image features 
                 end
                 trainY = Y(train_idxes);
                 % train
-                MDL = train_Mc_SVM(features, trainY);
                 
+                MDL = train_Mc_SVM(features, trainY);
+                % MDl = train_Mc_LDA(features, trainY);
+                              
                 testX = X(idxes,:);
                 testY = Y(idxes);
                 test_features = zeros(size(testX, 1), s*o*100*2); % grid size * 2. 
                 % predict
                 for i=1:size(testX,1)
-                    test_features(i, :) = image_features(testX(i), s, o)';
+                    test_features(i, :) = image_features(testX(i,:), s, o)';
                     % call image features on each file 
                 end
-                pred_Y = size(Y);
+                pred_Y = zeros(size(testY));
                 for i=1:length(pred_Y)
                     pred_Y(i) = predict(MDL, test_features(i,:));
                 end
           
                 % error - overall misclassification rate.
                 errors(i) = sum(testY - pred_Y ~= 0)/m; % counting how many don't == 0 (correct class)
+                
             end
             % get mean and get error
             error(count) = mean(errors);
@@ -81,10 +62,19 @@ function M = model_selection(sizes, orientations, N)
         end
     end
     
-    %% graph the errors. 
-    
-    %% return the sizes and orientations with the lowest mean error. 
-    
-    
+    % get the index with smallest error 
+    error
+    %% reget gabor-jet features with least error: 
+    [m,idx] = min(error);
+    si = sizes(ceil(idx/length(sizes))); % get the size at the index of error
+    or = ors(mod(idx, length(orientations)));% get the orientations
+    features = zeros(size(X, 1), si*or*100*2); % grid size * 2. 
+    for i=1:size(X,1)
+        features(i, :) = image_features(X(i), si, or)'; % call image features on each file 
+    end
+     
+    %% retrain with these features 
+    MDL = train_Mc_SVM(features, Y);
+    fprintf('%s sizes and %o orientations', s, o);
     
 end

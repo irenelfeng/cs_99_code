@@ -1,4 +1,4 @@
-function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors)
+function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors, mode)
 
 %%
 %% The goal of this function is to transform a image with gabor wavelet
@@ -7,6 +7,7 @@ function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOr
 %%
 %% Usage: [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma)
 %%
+%% Now i use sizes, ors 
 %% Inputs to the function:
 %%   Im                  -- The image you want to reconstruct with this function
 %%
@@ -52,6 +53,11 @@ if nargin < 4
     ors = 8;
 end
 
+if nargin < 7
+    mode = 'whole';
+end
+    
+
 %% FFT of the image
 Im = double(Im);
 ImFreq = fft2(Im);
@@ -59,40 +65,45 @@ ImFreq = fft2(Im);
 
 %% generate the grid
 if SizeX==256
-    if GridSize == 0 % 256 
-        RangeXY = 40:20:220; 
+    if GridSize == 0 % 10*10 
+        RangeX = 40:20:220;
+        RangeY = 40:20:220; 
+        if(strcmp(mode, 'top') == 1)
+             % range
+            RangeY = 40:20:120; % top. 
+        elseif(strcmp(mode, 'bottom') == 1) 
+            RangeY = 140:20:220; 
+        end
+        
         %% TODO: have an extra param so that is 'top' or 'bottom' 
-        % if(strcmp(feat, ) 
+         
         % set rangeX and rangeY to be 
     elseif GridSize == 1
         RangeXY = 20:20:240; 
     else
-        RangeXY = 1:256;
+        RangeXY = 1:256; % the entire image
     end    
     [xx,yy] = meshgrid(RangeXY,RangeXY); % meshgrids so cool! pass in 1 (2nd opt) vector of values for every x, 2nd value is a vector of how many times it will be replicated.
     Grid = xx + yy*1i;
     Grid = Grid(:); % vectorizes the grid
-elseif SizeX==128
-    if GridSize == 0
-        RangeXY = 20:10:110;
-    elseif GridSize == 1;
-        RangeXY = 10:10:120;
-    else
-        RangeXY = 1:128;
-    end    
-    [xx,yy] = meshgrid(RangeXY,RangeXY);
-    Grid = xx + yy*i;
-    Grid = Grid(:);
 elseif SizeX==48
     if GridSize == 0 % 10 * 10
-        RangeXY = 8:5:40; % but you're only going to get 5 * 5 area actually. okay fine. 
+        RangeX = 4:4:40; 
+        RangeY = 4:4:40;
+        if(strcmp(mode, 'top') == 1)
+             % range
+            RangeY = 4:4:20; % top. 
+        elseif(strcmp(mode, 'bottom') == 1) 
+            RangeY = 24:4:40; 
+        end
     else
-        RangeXY = 1:48; % wow just all of it
+        RangeX = 1:48; % just all of it
+        RangeY = 1:48;
     end    
-    [xx,yy] = meshgrid(RangeXY,RangeXY);
+    [xx,yy] = meshgrid(RangeX,RangeY);
     Grid = xx + yy*i;
     Grid = Grid(:);
-    
+else
     disp('The image has to be 256*256 or 128*128 or 48*48. Please try again');
     return;
 end
@@ -136,10 +147,10 @@ for LevelL = 0:nScale-1
             TmpGWTMag = abs(ifft2(TmpFilterImage));
             TmpGWTPhase = angle(ifft2(TmpFilterImage));
             %% get magnitude and phase at specific positions
-            tmpMag = TmpGWTMag(RangeXY,RangeXY);
+            tmpMag = TmpGWTMag(RangeX,RangeY);
             tmpMag = (tmpMag');
             JetsMagnitude(:,LevelL*nOrientation+DirecL+1)=tmpMag(:);
-            tmpPhase = TmpGWTPhase(RangeXY,RangeXY);
+            tmpPhase = TmpGWTPhase(RangeX,RangeY);
             tmpPhase = (tmpPhase')+ pi;
             JetsPhase(:,LevelL*nOrientation+DirecL+1)=tmpPhase(:);
         else
