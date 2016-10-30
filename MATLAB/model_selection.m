@@ -58,7 +58,7 @@ function MDL = model_selection(X, Y, sizes, orientations, N)
             % get mean and get error
             error(count) = mean(errors);
             count = count+1; 
-            sprintf('finished with %dth run ', s)
+            sprintf('finished with %dth run ', count)
         end
     end
     
