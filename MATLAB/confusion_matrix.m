@@ -15,7 +15,7 @@ function confusion_matrix(MDL, testX, testY, s, o)
     end
         
     %% make testY and predY in matrix form 
-    graph = plotconfusion(matTestY, matPredY);
+    graph = plotconfusion(matTestY', matPredY');
     save conf.png graph
    
 end
