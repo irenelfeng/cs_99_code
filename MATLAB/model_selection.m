@@ -2,7 +2,7 @@
 % sizes vector (how many sizes you want to try)
 % orientations vector (how many orientations you want to try)
 % output: 
-function MDL = model_selection(X, Y, sizes, orientations, N)
+function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
@@ -18,7 +18,7 @@ function MDL = model_selection(X, Y, sizes, orientations, N)
     %% change how many features we want
     for s=sizes
         for o=orientations
-            %% do N=10 cross validation
+            %% do N cross validation
             errors = zeros(N, 1);
             for k=0:N-1
                 
@@ -35,8 +35,8 @@ function MDL = model_selection(X, Y, sizes, orientations, N)
                 trainY = Y(train_idxes);
                 % train
                 
-                MDL = train_Mc_SVM(features, trainY);
-                % MDl = train_Mc_LDA(features, trainY);
+                % MDL = train_Mc_SVM(features, trainY);
+                MDL = train_Mc_LDA(features, trainY);
                               
                 testX = X(idxes,:);
                 testY = Y(idxes);
@@ -57,8 +57,8 @@ function MDL = model_selection(X, Y, sizes, orientations, N)
             end
             % get mean and get error
             error(count) = mean(errors);
-            count = count+1; 
             sprintf('finished with %dth run ', count)
+            count = count+1; 
         end
     end
     
@@ -67,10 +67,10 @@ function MDL = model_selection(X, Y, sizes, orientations, N)
     %% reget gabor-jet features with least error: 
     [m,idx] = min(error);
     si = sizes(ceil(idx/length(sizes))); % get the size at the index of error
-    or = ors(mod(idx, length(orientations)));% get the orientations
+    or = orientations(mod(idx-1, length(orientations))+1);% get the orientations
     features = zeros(size(X, 1), si*or*100*2); % grid size * 2. 
     for i=1:size(X,1)
-        features(i, :) = image_features(X(i), si, or)'; % call image features on each file 
+        features(i, :) = image_features(X(i,:), si, or)'; % call image features on each file 
     end
      
     %% retrain with these features 
