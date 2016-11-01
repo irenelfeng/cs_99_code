@@ -52,7 +52,7 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N)
                 end
           
                 % error - overall misclassification rate.
-                errors(i) = sum(testY - pred_Y ~= 0)/m; % counting how many don't == 0 (correct class)
+                errors(k+1) = sum(testY - pred_Y ~= 0)/m; % counting how many don't == 0 (correct class)
                 
             end
             % get mean and get error
