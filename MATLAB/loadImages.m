@@ -1,8 +1,6 @@
 % function that loads all database images ( into a .mat file 
 
-m = csvread('fer2013/fer2013.csv', 1, 0); % read starting at 2nd line
 % emotion,pixels,Usage
-
 fid = fopen('MATLAB/fer2013/fer2013.csv');
 data = textscan(fid,'%s %s %*s','Delimiter',','); % ignore training data
 fclose(fid);
@@ -17,7 +15,7 @@ for i=2:m
     X(i-1,:) = cellfun(@str2num, strsplit(strjoin(data{2}(i)), ' '));
 end % this is taking a grand old time. 
 
-% load CK+ images and emotion labels if have time
+% TODO: load CK+ images and emotion labels if have time
 
 
 save X.mat X 
