@@ -13,4 +13,5 @@ testY = Y(setdiff(28710:32299, disgust));
 [MDL, s, o] = model_selection(trainX, trainY, 1:3, [4, 8], 5);
 
 % get testX and testY 
-confusion_matrix(MDL, testX, testY, s, o);
+predY = MDL_predict(MDL, testX, s, o);
+confusion_matrix(predY, testY);
