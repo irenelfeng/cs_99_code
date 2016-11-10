@@ -1,7 +1,6 @@
 % Spatially varying Gaussian Blur 
 % both bottom_blur and top_blur and saves it into X_top and X_bottom
 % matrices
-
 f_width = 15; 
 
 % loop through all the files
@@ -11,15 +10,15 @@ files = dir([directory,'/','*.png']);
 length(files')
 topX = zeros(length(files'),2304);
 bottomX = zeros(length(files'),2304);
-f = 1;
 for file = files'
     im = imread([directory,'/',file.name]);
+    [~,num,ext] = fileparts(file.name)
+    num = str2num(num);
     im_mean = mean(im(:));
     rows = size(im,1);
     % do not use a sigma more than half the width. 
     step = .5;
     blurs = 1:step:ceil(f_width/4); % number of different sigmas
-    blurs
     % need one less of the number of sigmas because one is no blur
     bar_size = rows/(length(blurs)+1); 
     
@@ -65,11 +64,7 @@ for file = files'
     % add to X.mat 
     im_top_blur = im_top_blur'; % store it column wise because stupid
     im_bottom_blur = im_bottom_blur'; % store it column wise because stupid
-    topX(f,:) = im_top_blur(:); % is it the same 
-    bottomX(f,:) = im_bottom_blur(:);
-    
-    f = f+1;
-    
+    topX(num,:) = im_top_blur(:); % is it the same 
+    bottomX(num,:) = im_bottom_blur(:);
     
 end
-
