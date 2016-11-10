@@ -11,7 +11,7 @@ mkdir(dir);
 
 for i=1:m 
     im = reshape(X(i,:), [48 48])';
-    imwrite(im,colormap('gray'),[dir,'/',num2str(i),'.png']);
+    imwrite(uint8(im),[dir,'/',num2str(i),'.png']);
     ['Wrote image ', num2str(i)]
 end
 
