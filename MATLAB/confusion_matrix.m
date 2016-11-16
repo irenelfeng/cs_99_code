@@ -1,4 +1,4 @@
-function confusion_matrix(predY, testY, filename)
+function confusion_matrix(predY, testY, filename, titlee)
     clf
     %% make testY and predY in matrix form 
     Conf_mat = confusionmat(testY, predY); % predictions across Y-axis, predictions across X-axis
@@ -13,6 +13,7 @@ function confusion_matrix(predY, testY, filename)
     labels = {'Angry','Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'}; 
     graph = heatmap(Percent_Conf_mat, labels, labels, 1,'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true,'Colorbar',true);
     xlabel('Output Class'); ylabel('Target Class');
+    title(titlee);
     saveas(graph, filename);
    
 end
