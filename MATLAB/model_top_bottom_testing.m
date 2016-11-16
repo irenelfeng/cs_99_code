@@ -1,5 +1,5 @@
 % test existing model with top blur and bottom blur 
-
+ 
 % loads existing model MDL here
 s=2;
 o=8;
@@ -10,7 +10,8 @@ load('bottomX.mat');
 load('Y.mat');
 
 d = date;
-testY =Y; % all of Y serves as testing. gonna be a whole ton.  
+disgust = find(Y==1);
+testY = Y(setdiff(1:size(Y,1), disgust));
 
 for i=0:1 % top = 0, bottom = 1 
     if (i == 0)
