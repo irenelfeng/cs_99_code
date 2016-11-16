@@ -37,12 +37,14 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
                 end
                 % train
                 
-                if (strcmp(type, 'LDA') ~= 0)
+                if (strcmp(type, 'LDA') == 1)
                     MDL = train_Mc_LDA(features, trainY);
-                elseif (strcmp(type, 'SVM') ~= 0)
+                elseif (strcmp(type, 'SVM') == 1)
                     MDL = train_Mc_SVM(features, trainY);
                 else 
                     disp('Sorry, model type not recognized');
+                    MDL = 'error';
+                    return
                 end
                 
                               
