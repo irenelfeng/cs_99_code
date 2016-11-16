@@ -1,4 +1,4 @@
-function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors, mode)
+function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors)
 
 %%
 %% The goal of this function is to transform a image with gabor wavelet
@@ -61,6 +61,7 @@ end
 %% FFT of the image
 Im = double(Im);
 ImFreq = fft2(Im);
+imagesc((real(ifft2(ImFreq)))) % no need to fftshift when mapped back to an image? 
 [SizeX,SizeY] = size(Im);
 
 %% generate the grid
@@ -68,15 +69,6 @@ if SizeX==256
     if GridSize == 0 % 10*10 
         RangeX = 40:20:220;
         RangeY = 40:20:220; 
-        if(strcmp(mode, 'top') == 1)
-             % range
-            RangeY = 40:20:120; % top. 
-        elseif(strcmp(mode, 'bottom') == 1) 
-            RangeY = 140:20:220; 
-        end
-        
-        %% TODO: have an extra param so that is 'top' or 'bottom' 
-         
         % set rangeX and rangeY to be 
     elseif GridSize == 1
         RangeXY = 20:20:240; 
@@ -90,12 +82,6 @@ elseif SizeX==48
     if GridSize == 0 % 10 * 10
         RangeX = 4:4:40; 
         RangeY = 4:4:40;
-        if(strcmp(mode, 'top') == 1)
-             % range
-            RangeY = 4:4:20; % top. 
-        elseif(strcmp(mode, 'bottom') == 1) 
-            RangeY = 24:4:40; 
-        end
     else
         RangeX = 1:48; % just all of it
         RangeY = 1:48;
@@ -112,13 +98,13 @@ GridPosition = [imag(Grid) real(Grid)];
 %% setup the paramers
 nScale = sizes; nOrientation = ors;
 xyResL = SizeX; xHalfResL = SizeX/2; yHalfResL = SizeY/2;
-kxFactor = 2*pi/xyResL;
+kxFactor = 2*pi/xyResL; 
 kyFactor = 2*pi/xyResL;
 
 %% setup space coordinate 
-[tx,ty] = meshgrid(-xHalfResL:xHalfResL-1,-yHalfResL:yHalfResL-1);        
-tx = kxFactor*tx;
-ty = kyFactor*(-ty);
+[tx,ty] = meshgrid(-xHalfResL:xHalfResL-1,-yHalfResL:yHalfResL-1);  
+tx = kxFactor*tx; % rows that go from -pi -> pi (size = the size of the image). 
+ty = kyFactor*(-ty); % columns that go from pi -> -pi (size = the size of the image).
 
 %% initiallize useful variables
 if ComplexOrSimple == 0
@@ -130,26 +116,38 @@ else
 end
 
 for LevelL = 0:nScale-1
-    k0 = (pi/2)*(1/sqrt(2))^LevelL;
+    k0 = (pi/2)*(1/sqrt(2))^LevelL; % the size of the kernel
+%     sprintf('k0 is %d', k0) % smaller as number goes up (1.57 -> 1.11 ... ) as (1/sqrt(2))^x
     for DirecL = 0:nOrientation-1
         kA = pi*DirecL/nOrientation;
         k0X = k0*cos(kA);
         k0Y = k0*sin(kA);
         %% generate a kernel specified scale and orientation, which has DC on the center
+        %% the kernel is a 48*48 image, and has DC = the value of the MEAN freq of the images 
+        %% and is real-valued
         FreqKernel = 2*pi*(exp(-(Sigma/k0)^2/2*((k0X-tx).^2+(k0Y-ty).^2))-exp(-(Sigma/k0)^2/2*(k0^2+tx.^2+ty.^2)));
-        %% use fftshift to change DC to the corners
+        %% use fftshift to change DC back the corners - the way it should be (but unintuitive)
         FreqKernel = fftshift(FreqKernel);
-        
+        % visualizing kernels in spatial domain
+%         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
+%         imagesc(fftshift(real(ifft2(FreqKernel)))); 
+%         colormap gray;
+%         title(sprintf('size %d, orientation %d', LevelL, DirecL));
+%         
         %% convolute the image with a kernel specified scale and orientation
-        TmpFilterImage = ImFreq.*FreqKernel;
+        TmpFilterImage = ImFreq.*FreqKernel; % convolution is just an inner product: freqKernel 
+%         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
+%         imagesc(real(ifft2(TmpFilterImage)));
+%         colormap gray
         %% calculate magnitude and phase
         if ComplexOrSimple == 0
-            TmpGWTMag = abs(ifft2(TmpFilterImage));
-            TmpGWTPhase = angle(ifft2(TmpFilterImage));
+            TmpGWTMag = abs(ifft2(TmpFilterImage)); % returns ck = sqrt(ak^2 + bk^2), real^2 + imag^2
+            TmpGWTPhase = angle(ifft2(TmpFilterImage)); % reutnrs ck = arctan(bk/ak) but what angle is this? always +- pi
             %% get magnitude and phase at specific positions
             tmpMag = TmpGWTMag(RangeX,RangeY);
             tmpMag = (tmpMag');
-            JetsMagnitude(:,LevelL*nOrientation+DirecL+1)=tmpMag(:);
+            JetsMagnitude(:,LevelL*nOrientation+DirecL+1)=tmpMag(:); % appends them as a column vector
+            
             tmpPhase = TmpGWTPhase(RangeX,RangeY);
             tmpPhase = (tmpPhase')+ pi;
             JetsPhase(:,LevelL*nOrientation+DirecL+1)=tmpPhase(:);

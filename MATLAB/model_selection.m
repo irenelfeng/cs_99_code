@@ -2,8 +2,9 @@
 % sizes vector (how many sizes you want to try)
 % orientations vector (how many orientations you want to try)
 % N = how many cross-validation runs
+% type = right now 'LDA' or 'SVM' 
 % output: 
-function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N)
+function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
@@ -36,8 +37,14 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N)
                 end
                 % train
                 
-                % MDL = train_Mc_SVM(features, trainY);
-                MDL = train_Mc_LDA(features, trainY);
+                if (strcmp(type, 'LDA') ~= 0)
+                    MDL = train_Mc_LDA(features, trainY);
+                elseif (strcmp(type, 'SVM') ~= 0)
+                    MDL = train_Mc_SVM(features, trainY);
+                else 
+                    disp('Sorry, model type not recognized');
+                end
+                
                               
                 testX = X(test_idxes,:);
                 testY = Y(test_idxes);

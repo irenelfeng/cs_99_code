@@ -1,5 +1,10 @@
 % given X, Y, returns model and confusion matrix 
 % calls model_selection.m, confusion_matrix.m
+% this is for LDA, change MDL_predict to SVM  
+% comment out 
+
+% gets date 
+d = date; 
 
 % X and Y
 load('X.mat'); % images
@@ -14,4 +19,5 @@ testY = Y(setdiff(28710:32299, disgust));
 
 % get testX and testY 
 predY = MDL_predict(MDL, testX, s, o);
-confusion_matrix(predY, testY);
+save(sprintf('MDL_SVMs%do%d', s, o), 'MDL');
+confusion_matrix(predY, testY, [d,'-s',s,'-o',o,'.png']);

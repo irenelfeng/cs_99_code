@@ -12,16 +12,15 @@ topX = zeros(length(files'),2304);
 bottomX = zeros(length(files'),2304);
 for file = files'
     im = imread([directory,'/',file.name]);
-    [~,num,ext] = fileparts(file.name)
+    [~,num,ext] = fileparts(file.name);
     num = str2num(num);
     im_mean = mean(im(:));
     rows = size(im,1);
     % do not use a sigma more than half the width. 
     step = .5;
-    blurs = 1:step:ceil(f_width/4); % number of different sigmas
-    % need one less of the number of sigmas because one is no blur
-    bar_size = rows/(length(blurs)+1); 
-    
+    num_bars = 8;
+    bar_size = rows/(num_bars); 
+    blurs = step:step:step*num_bars/2; % number of blurs = half the number of bars 
     % pad rows - TODO: possibly make a better pad
     im_padded = cat(1, repmat(im_mean, floor(f_width/2), size(im, 2)), im, ... 
         repmat(im_mean, floor(f_width/2), size(im, 2)));
@@ -29,32 +28,32 @@ for file = files'
     im_padded = cat(2, repmat(im_mean, size(im_padded, 1), floor(f_width/2)), im_padded, ...
         repmat(im_mean, size(im_padded, 1), floor(f_width/2)));
     
-    count = 1;
-    for sigma=blurs
-        oneDgauss = exp(-(((1:f_width)-ceil(f_width/2)).^2)/(2*sigma^2));
+    for sigma=1:length(blurs)
+        oneDgauss = exp(-(((1:f_width)-ceil(f_width/2)).^2)/(2*blurs(sigma)^2));
         twoDgauss = oneDgauss'*oneDgauss;
         twoDgauss = twoDgauss/(sum(twoDgauss(:)));
-        im_blurred(:,:,count) = conv2(double(im_padded), twoDgauss, 'valid');
-        count = count+1;
+        im_blurred(:,:,sigma) = conv2(double(im_padded), twoDgauss, 'valid');
     end
 
     im_bottom_blur = zeros(size(im));
-    for bar=0:length(blurs)
+    for bar=0:num_bars-1
         % top half clear
-        if(bar < length(blurs)/2)
+        if(bar < num_bars/2)
             im_bottom_blur(1+bar_size*bar:bar_size+bar_size*bar, :) = im(1+bar_size*bar:bar_size+bar_size*bar, :);
         else
-            im_bottom_blur(1+bar_size*bar:bar_size+bar_size*bar, :) = im_blurred(1+bar_size*bar:bar_size+bar_size*bar, :, bar);
+            im_bottom_blur(1+bar_size*bar:bar_size+bar_size*bar, :) = im_blurred(1+bar_size*bar:bar_size+bar_size*bar, :, bar-num_bars/2+1);
         end
     end
     
     im_top_blur = zeros(size(im));
-    for bar=0:length(blurs)
+    for bar=0:num_bars-1
         % bottom half clear
-        if(bar > length(blurs)/2)
+        if(bar >= num_bars/2)
             im_top_blur(1+bar_size*bar:bar_size+bar_size*bar, :) = im(1+bar_size*bar:bar_size+bar_size*bar, :);
         else
-            im_top_blur(1+bar_size*bar:bar_size+bar_size*bar, :) = im_blurred(1+bar_size*bar:bar_size+bar_size*bar, :, length(blurs)-bar);
+            % not very blurry for eyes (since the eyes are the 3rd bar
+            % really) so i made it increase by 1
+            im_top_blur(1+bar_size*bar:bar_size+bar_size*bar, :) = im_blurred(1+bar_size*bar:bar_size+bar_size*bar, :, min(num_bars/2-bar+1, num_bars/2));
         end
     end
     
