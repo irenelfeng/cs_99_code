@@ -4,7 +4,7 @@
 % N = how many cross-validation runs
 % type = right now 'LDA' or 'SVM' 
 % output: 
-function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
+function [MDL, si, or] = model_selection(X, Y, sizes, orientations, N, type)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
@@ -85,12 +85,13 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
         features(i, :) = image_features(X(i,:), si, or)'; % call image features on each file 
     end
      
-    %% retrain with these features 
+    %% retrain with these features
+
+    sprintf('%s sizes and %o orientations', si, or);
     if (strcmp(type, 'LDA') == 1)
         MDL = train_Mc_LDA(features, Y);
     elseif (strcmp(type, 'SVM') == 1)
         MDL = train_Mc_SVM(features, Y);
     else 
-    sprintf('%s sizes and %o orientations', s, o);
-    
+       
 end
