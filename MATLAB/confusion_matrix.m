@@ -1,5 +1,5 @@
 function confusion_matrix(predY, testY, filename, titlee)
-    clf
+    % clf
     %% make testY and predY in matrix form 
     Conf_mat = confusionmat(testY, predY); % predictions across Y-axis, predictions across X-axis
     Percent_Conf_mat = zeros(size(Conf_mat));
