@@ -4,7 +4,7 @@
 % N = how many cross-validation runs
 % type = right now 'LDA' or 'SVM' 
 % output: 
-function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
+function [MDL, si, or] = model_selection(X, Y, sizes, orientations, N, type)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
@@ -85,7 +85,7 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
     end
      
     %% retrain with these features 
+    sprintf('%s sizes and %o orientations', si, or);
     MDL = train_Mc_SVM(features, Y);
-    sprintf('%s sizes and %o orientations', s, o);
     
 end
