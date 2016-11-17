@@ -68,6 +68,7 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
             % get mean and get error
             error(count) = mean(errors);
             sprintf('finished with %dth run ', count)
+            disp(error(count));
             count = count+1; 
         end
     end
@@ -85,7 +86,11 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
     end
      
     %% retrain with these features 
-    MDL = train_Mc_SVM(features, Y);
+    if (strcmp(type, 'LDA') == 1)
+        MDL = train_Mc_LDA(features, Y);
+    elseif (strcmp(type, 'SVM') == 1)
+        MDL = train_Mc_SVM(features, Y);
+    else 
     sprintf('%s sizes and %o orientations', s, o);
     
 end
