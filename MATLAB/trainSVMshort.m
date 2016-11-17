@@ -21,8 +21,9 @@ disp('finished creating features!')
 MDL = train_Mc_SVM(features(setdiff(1:28709, disgust),:), trainY);
 save(sprintf('MDL_SVMs%do%d', si, or), 'MDL');
 
-predY = MDL_predict(MDL, testX, s, o);
-confusion_matrix(predY, testY, sprintf('confusion%s-s%ds-o%d.png', d, si, or));
+predY = MDL_predict(MDL, testX, si, or);
+error = sum(testY - predY ~= 0)/(length(predY))
+confusion_matrix(predY, testY, sprintf('confusionSVM%s-s%ds-o%d.png', d, si, or), sprintf('SVM Whole, s%ds-o%d', si, or));
 
 
     
