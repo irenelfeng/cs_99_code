@@ -78,7 +78,7 @@ function [MDL, s, o] = model_selection(X, Y, sizes, orientations, N, type)
     error
     %% reget gabor-jet features with least error: 
     [m,idx] = min(error);
-    si = sizes(ceil(idx/length(sizes))); % get the size at the index of error
+    si = sizes(ceil(idx/(length(orientations)))); % get the size at the index of error
     or = orientations(mod(idx-1, length(orientations))+1);% get the orientations
     features = zeros(size(X, 1), si*or*100*2); % grid size * 2. 
     for i=1:size(X,1)
