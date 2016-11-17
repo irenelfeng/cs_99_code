@@ -67,3 +67,6 @@ for file = files'
     bottomX(num,:) = im_bottom_blur(:);
     
 end
+
+save topX.mat topX
+save bottomX.mat bottomX
