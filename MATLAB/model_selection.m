@@ -12,6 +12,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
         sizes = 1:3; 
         orientations = [4,8]; 
         N = 10;
+        comps = 0;
     end
     
     rand('twister', 0);
@@ -94,14 +95,15 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
     for i=1:size(X,1)
         features(i, :) = image_features(X(i,:), si, or)'; % call image features on each file 
     end
-    [comps,pca_features, resid] = bestPCA(features);
+    
+    %[comps,pca_features, resid] = bestPCA(features);
     %% retrain with these features
 
     sprintf('%s sizes and %s orientations and reduced to %s PCA components', si, or, k);
     if (strcmp(type, 'LDA') == 1)
-        MDL = train_Mc_LDA(pca_features, Y);
+        MDL = train_Mc_LDA(features, Y);
     elseif (strcmp(type, 'SVM') == 1)
-        MDL = train_Mc_SVM(pca_features, Y);
+        MDL = train_Mc_SVM(features, Y);
     end 
        
 end

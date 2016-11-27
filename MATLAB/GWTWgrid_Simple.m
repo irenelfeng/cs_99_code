@@ -61,7 +61,7 @@ end
 %% FFT of the image
 Im = double(Im);
 ImFreq = fft2(Im);
-imagesc((real(ifft2(ImFreq)))) % no need to fftshift when mapped back to an image? 
+%imagesc((real(ifft2(ImFreq)))) % no need to fftshift when mapped back to an image? 
 [SizeX,SizeY] = size(Im);
 
 %% generate the grid
