@@ -19,7 +19,7 @@ function difference_conf_matrix(predY, testY, predY2, testY2, filename, titlee)
         Percent_Conf_mat(i,:) = (z1 - z2) * 100;
     end
     labels = {'Angry','Disgust','Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'}; 
-    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'Colormap', 'money','ShowAllTicks',1,'UseLogColorMap',true);
+    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'Colormap', 'money','ShowAllTicks',1);
     xlabel('Output Class'); ylabel('Target Class');
     title(titlee);
     saveas(graph, filename);
