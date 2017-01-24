@@ -10,13 +10,15 @@ d = date;
 load('topX.mat'); % images
 %load('bottomX.mat');
 load('Y.mat');  % labels
-disgust = find(Y==1);
-neutral = find(Y==6);
+% disgust = find(Y==1);
+% neutral = find(Y==6);
+disgust = [];
+neutral = [];
 % remove all disgust indexes Y==1
 trainX = topX(setdiff(1:28709, [disgust; neutral]),:);
 trainY = Y(setdiff(1:28709, [disgust; neutral]));
-testX = topX(setdiff(1:32299, [disgust; neutral]),:);
-testY = Y(setdiff(1:32299, [disgust; neutral]));
+testX = topX(setdiff(28710:32299, [disgust; neutral]),:);
+testY = Y(setdiff(28710:32299, [disgust; neutral]));
 [MDL, s, o] = model_selection(trainX, trainY, 1:3, [4, 8], 5, type);
 
 predY = MDL_predict(MDL, testX, s, o);
