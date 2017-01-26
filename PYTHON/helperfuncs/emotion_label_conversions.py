@@ -7,15 +7,27 @@ def invert_dic(dic):
 # Alphabetical but Neutral is at the end. 
 def fer_dic(): 
 	return {
-		0:'Anger', # hand checked this!
+		0:'Anger', 
 		1:'Disgust', 
-		2:'Fear', # hand checked this!
-		3:'Happiness', # hand checked this!
-		4:'Sad', # this is 5?
-		5:'Surprise', # this is 6? 
-		6:'Neutral' # need to check this one w/: pretty sure this is 4 in Mollahosseini
+		2:'Fear', 
+		3:'Happiness', 
+		4:'Sad', 
+		5:'Surprise', 
+		6:'Neutral' 
 	}
 
+# Alphabetical but Neutral first
+def ck_dic():
+	return {
+		0:'Neutral', 
+		1:'Anger',
+		# 2:'Contempt',
+		3:'Disgust', 
+		4:'Fear', 
+		5:'Happiness', 
+		6:'Sad', 
+		7:'Surprise'
+	}
 # Alphabetical
 def molla_dic(): 
 	return {
@@ -33,3 +45,7 @@ def fer_to_molla():
 	to_molla = invert_dic(molla_dic())
 	fer_to_molla = { k: to_molla[v] for k,v in fer.iteritems() }
 	return fer_to_molla
+
+def emot_conversion(target, source):
+	return { k: invert_dic(target)[v] for k,v in source.iteritems() }
+
