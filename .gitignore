@@ -2,3 +2,4 @@
 *cohn-kanade/
 *.pyc
 *.asv
+MATLAB/figures/*
