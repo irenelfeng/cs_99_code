@@ -30,3 +30,6 @@ subplot(3,2,3);
 pred_Y3 = MDL_predict(MDL, bottomX, s, o);
 confusion_matrix(pred_Y3, testY, sprintf('confusionSVMtop%s-s%d-o%d.png', d, s, o), sprintf('Confusion Top SVM-s%d-o%d', s, o) );
 
+load('f_regX.mat');
+pred_Y4 = MDL_predict(MDL, 
+

@@ -21,7 +21,8 @@ for file = files'
     num_bars = 8;
     bar_size = rows/(num_bars); 
     blurs = step:step:step*num_bars/2; % number of blurs = half the number of bars 
-    % pad rows - TODO: possibly make a better pad
+    % pad rows - TODO: possibly make a better pad - currently padding with
+    % mean intensity of image
     im_padded = cat(1, repmat(im_mean, floor(f_width/2), size(im, 2)), im, ... 
         repmat(im_mean, floor(f_width/2), size(im, 2)));
     % pad columns
@@ -63,8 +64,8 @@ for file = files'
     % add to X.mat 
     im_top_blur = im_top_blur'; % store it column wise because stupid
     im_bottom_blur = im_bottom_blur'; % store it column wise because stupid
-    topX(num,:) = im_top_blur(:); % is it the same 
-    bottomX(num,:) = im_bottom_blur(:);
+    bottomX(num,:) = im_top_blur(:);  
+    topX(num,:) = im_bottom_blur(:);
     
 end
 

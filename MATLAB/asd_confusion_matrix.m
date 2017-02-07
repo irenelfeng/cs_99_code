@@ -1,7 +1,7 @@
 % create matrices
 function asd_confusion_matrix
+figure;
 load('/Users/irenefeng/Documents/Computer_Social_Vision/cs_99_code/PYTHON/helperfuncs/dartmouthTDResults.mat');
-subplot(3,2,1);
 Conf_mat = confusionmat(testY, predY); % target across Y-axis, response across X-axis
     Percent_Conf_mat = zeros(size(Conf_mat));
     for i=1:size(Conf_mat,1)
@@ -84,22 +84,29 @@ TD_Philip = [TD_Philip(:,1:4) zeros(7,1) TD_Philip(:,5) zeros(7,1)];
 ASD_Philip = [ASD_Philip(1:4,:); zeros(1,5); ASD_Philip(5,:); zeros(1,5);];
 ASD_Philip = [ASD_Philip(:,1:4) zeros(7,1) ASD_Philip(:,5) zeros(7,1)];
 
+% add rows
+TD_Eack = [TD_Eack(1,:); zeros(1,5); TD_Eack(2:5,:); zeros(1,5);];
+% add columns
+TD_Eack = [TD_Eack(:,1) zeros(7,1) TD_Eack(:,2:5) zeros(7,1)];
+ASD_Eack = [ASD_Eack(1:4,:); zeros(1,5); ASD_Eack(5,:); zeros(1,5);];
+ASD_Eack = [ASD_Eack(:,1:4) zeros(7,1) ASD_Eack(:,5) zeros(7,1)];
+
 % dartmouth conf in actual numbers already
 ASD_Matrices = zeros(7,7, length(Weights_TD));
 TD_Matrices = zeros(7,7, length(Weights_TD));
-ASD_Matrices(:,:,1) = ASD_wallace;
+ASD_Matrices(:,:,1) = ASD_Wallace;
 ASD_Matrices(:,:,2) = ASD_Eack;
 ASD_Matrices(:,:,3) = ASD_Wbach(1:7, 1:7);
 ASD_Matrices(:,:,4) = ASD_Philip;
 
-TD_Matrices(:,:,1) = TD_wallace;
+TD_Matrices(:,:,1) = TD_Wallace;
 TD_Matrices(:,:,2) = TD_Eack;
 TD_Matrices(:,:,3) = TD_Wbach(1:7, 1:7);
 TD_Matrices(:,:,4) = TD_Philip;
 
 % multiply each cell by weights. 
-Total_TD = Conf_mat;
-row_divide = sum(Conf_mat,2);
+Total_TD =  zeros(size(Conf_mat));
+row_divide =zeros(size(Total_TD,1),1);
 Total_ASD = zeros(size(Conf_mat));
 row_ASDdivide = zeros(size(Total_ASD,1),1);
 
@@ -119,16 +126,9 @@ Perc_Total_ASD = Total_ASD ./ repmat(row_ASDdivide, 1, 7);
 Perc_Total_TD = Total_TD ./ repmat(row_divide, 1, 7);
 
 ASD_TD_TOTAL = makeDiffConfMat(Perc_Total_ASD, Perc_Total_TD); 
-graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'Colormap', 'money');
-end
+graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'FontSize', 15, 'Colormap', 'money');
+title(sprintf('Total ASD-TD Confusions (%d studies)', length(Weights_TD)));
+xlabel('Output Class'); ylabel('Target Class');
 
-function [rows] = row_count(row_divide, Conf_mat)
-    rows = row_divide; % copies 
-    for r = 1:length(Conf_mat)
-        if sum(Conf_mat(r,:) ~= 0
-            rows(r) = row_divide(r) + 1;
-        end
-    end
 end
-
 
