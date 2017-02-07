@@ -1,2 +1,5 @@
 *.DS_Store
 *cohn-kanade/
+*.pyc
+*.asv
+MATLAB/figures/*

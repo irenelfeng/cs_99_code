@@ -1,7 +1,7 @@
 function confusion_matrix(predY, testY, filename, titlee)
     % clf
     %% make testY and predY in matrix form 
-    Conf_mat = confusionmat(testY, predY); % predictions across Y-axis, predictions across X-axis
+    Conf_mat = confusionmat(testY, predY); % target across Y-axis, response across X-axis
     Percent_Conf_mat = zeros(size(Conf_mat));
     for i=1:size(Conf_mat,1)
         if(sum(Conf_mat(i,:)) == 0)
