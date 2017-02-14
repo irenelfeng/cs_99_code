@@ -13,18 +13,16 @@ eyePath = 'haarcascade_eye_eyeglasses.xml'
 # Create the haar cascade
 faceCascade = cv2.CascadeClassifier(cascPath)
 eyeCascade = cv2.CascadeClassifier(eyePath)
-rotateLeft3 = ['S028', 'S030', 'S031', 'S032', 'S033',
+rotateLeft3 = ['S028', 'S030', 'S031', 'S032', 'S033', 'S034',
 'S035', 'S036', 'S037', 'S038', 'S039', 'S040', 'S041',
-'S042', 'S045', 'S046', 'S047', 'S048', 'S049', 'S050'];
+'S042', 'S043', 'S044','S045', 'S046', 'S047', 'S048', 'S049', 'S050'];
+frontLeft = ['S003', 'S005', 'S006', 'S016'];
+frontRight = ['S001', 'S002', 'S017'];
 
-# save directory 
-facedir = directory+'/../face_detected'
-if not os.path.exists(facedir):
-    os.makedirs(facedir)
 # Read the image
 for root, dirs, files in os.walk(directory):
     for file in files: 
-        if '.png' in file:
+        if '.png' in file and 'face_detected' not in root:
             image = cv2.imread(root+'/'+file, 0) # autoconverts to grayscale
             # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             # Detect faces in the image
@@ -38,42 +36,31 @@ for root, dirs, files in os.walk(directory):
                 image,
                 scaleFactor=1.01,
                 minNeighbors=5,
-                minSize=(100, 100), # (30,30) for FER images 
+                minSize=(180, 180), # (30,30) for FER images 
             )
 
 
             if len(faces) == 0: 
-                # ugh but it's not capturing all the rotated images because sometimes it detects something stupid as a face. 
-                # then we have to rotate the image 90 to the right, i think
-                # sad not all of them are rotated right. 
-                print 'found no face for file {0}'.format(file) 
+                print 'found no face for file {0}'.format(file)
+                Exception('impossible :c')  
 
             elif len(faces) > 1: 
+                # maybe to make it better, do eye detect
+                center_x = round(image.shape[0]/2); 
+                left = 0
+                if SUBJECT in frontLeft:
+                    left = 1
+                    faces = filter(lambda x: not(x[0] < center_x and left),faces)
+
+                elif SUBJECT in frontRight:
+                    left = 0
+                    faces = filter(lambda x: not(x[0] < center_x and left),faces)
+
+                else:
+                    Exception
                 print 'there is more than 1 face founded in file {0}'.format(file)
-                # maybe to make it better, do eye detect 
-                most_centered = 0
-                most_centered_dist = 1000
-                for i,(x,y,w,h) in enumerate(faces):
-                    crop_img = image[y:y+h, x:x+w]
-                    closest_distance = 1000
-                    most_centered = 0
-
-                    eyes = eyeCascade.detectMultiScale(crop_img)
-                    if len(eyes) == 2: # this is probably the face we want
-                        eyes = sorted(eyes, key=lambda x: (x[0])) # x coordinate is COLUMNS
-                        print '2 eyes for this face {0}'.format(i)
-                        # left eye nearest the center
-                        # or maybe the midpoint of left eye and right eye
-                        # left eye edge (left eye start + left eye end + right eye end)
-                        midpoint = (eyes[0][0] + eyes[0][2] + eyes[1][0])/2.0
-                        # choose closest midpoint
-                        if abs((x+w) / 2.0 - midpoint) < closest_distance: 
-                            most_centered = i
-                            closest_distance = abs((x+w) / 2.0 - midpoint)
-
-                print 'most centered face is index {0}'.format(most_centered)
-                faces[0] = faces[most_centered]
-
+                # get biggest on the side it should be on. ~XOR
+                faces = sorted(faces, key=lambda x: (x[2],x[3]), reverse=True) 
 
             # crops the image at this rectangle 
             (x, y, w, h) = faces[0]
@@ -83,4 +70,7 @@ for root, dirs, files in os.walk(directory):
             # scales crop to be square, i guess the closest square <= area 
             s = int(round(math.sqrt(w*h)))
             square = cv2.resize(crop_img, (s,s))
-            cv2.imwrite(facedir+'/'+ root + '/'+file, square)
+            parts = root.split('/')
+            flat = '/'.join(parts[:len(parts)-1]) 
+            m = cv2.imwrite(flat + '/face_detected/'+parts[-1]+'_'+file, square)
+            print m

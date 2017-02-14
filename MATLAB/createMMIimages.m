@@ -1,4 +1,3 @@
-
 directory = '../../mmi';
 sessions = dir(directory);
 Y = [];

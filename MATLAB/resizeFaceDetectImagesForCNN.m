@@ -13,7 +13,7 @@ directory = '../../ADFES/face_detected';
 molladir = '../../ADFES/for_molla';
 
 mkdir(molladir);
-files = dir([directory,'/','*.jpg']);
+files = dir([directory,'/','*.png']);
 c = 1;
 X = zeros(length(files'), 48*48); 
 for file = files'
