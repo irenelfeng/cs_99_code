@@ -14,7 +14,7 @@ for sub = subjects'
         emotionlabel = dir([emotdirectory,'/',sub.name,'/',emotion.name,'/*.txt']);
         if ~isempty(emotionlabel)
             imageset = dir([directory,'/', sub.name,'/', emotion.name,'/*.png']); 
-            label = fscanf(fopen([emotdirectory,'/',sub.name,'/',emotion.name,'/',emotionlabel.name]), '%f');
+            label = fscanf(fopen([emotdirectory,'/',sub.name,'/',emotion.name,'/',emotionlabel.name]), '%f')
             
             if label == 2 % this is contempt
                 continue
@@ -42,9 +42,9 @@ for sub = subjects'
                 end
                 
             else
-                fname = frames{end};
-                imwrite(imread([directory,'/',sub.name,'/', emotion.name, '/', fname]), ...
-                                    [directory,'/concat/',fname]);
+                fname = imageset(last).name;
+                 imwrite(imread([directory,'/',sub.name,'/', emotion.name, '/', fname]), ...
+                                     [directory,'/concat/',fname]);
                 Y(end+1) = label;
             end
             
@@ -52,5 +52,6 @@ for sub = subjects'
     end
 end
 
-ckY = ck_to_fer(Y);
-save ckY.mat ckY
+Y
+CK_Y = ck_to_molla(Y);
+save CK_Y.mat CK_Y
