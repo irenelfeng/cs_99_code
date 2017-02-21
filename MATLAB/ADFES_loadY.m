@@ -1,8 +1,13 @@
 % ADFES make Y.mat 
+ADFES_name = {'Anger', 'Disgust', 'Fear', 'Joy', 'Neutral', 'Sad', 'Surprise'};
+labels = 0:6;
+ADFES_map = containers.Map(ADFES_name, labels);
 ADFES_Y = zeros(2353, 1);
-files = dir([directory,'/', db.name,'/*.jpg']);
+directory = '../../ADFES';
+files = dir([directory,'/','*.jpg']);
 i = 1;
 for file = files'
+    emot = 0;
     for key = ADFES_name
         k = strfind(file.name,key);
         if ~isempty(k)

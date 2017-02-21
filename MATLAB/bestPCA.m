@@ -1,11 +1,9 @@
 % returns the number of comps and returns residual variance in percent.
 function [comps, newpoints, d] = bestPCA(X) 
-    x = .40; % the max value of residual variance
-    figure
+    x = .20; % the max residual variance tolerated
     [c, points, score] = pca(X);
     % turn varianace scores into running sum 
     cumscore = cumsum(score);
-    plot(1:length(cumscore), cumscore);
     % calculate 2nd deriv to find steepest 
     secondDeriv = zeros(length(score),1);
     % edge case - first 
@@ -18,16 +16,15 @@ function [comps, newpoints, d] = bestPCA(X)
     e = zeros(length(score), 1);
     for i=1:length(score)
         e(i) = sum(score(i+1:end))/sum(score);
-    end
-    a = find(e < x);
-    minimum = a(1); % find the minimum number of eigenvectors
+    end % e is the cumulative sum to 1
+    a = find(e < x); 
+    minimum = a(1); % find the minimum number of eigenvectors to take, gives 
     [maxVal, cutoff] = max(secondDeriv(minimum:end));
-    hold on 
-    plot(1:length(secondDeriv), secondDeriv);
+    % plot(1:length(secondDeriv), secondDeriv);
     % return up to the kth component and new points + calculate residual variance
     comps  = c(:,1:cutoff+minimum);
     newpoints = points(:,1:cutoff+minimum);
     d = sum(score(cutoff+minimum+1:end))/sum(score)*100;
-    sprintf('residual variance in percent not captured is %d', d)
+    sprintf('residual variance in with %f captured is %f percent',  size(comps, 2), d)
     
 end

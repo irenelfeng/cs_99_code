@@ -42,19 +42,19 @@ for session = sessions'
                     break
                 end
                 mid = readFrame(v);
-                imwrite(mid, sprintf('%s/%s/%s_%d.png', directory, session.name, fname, i));
+%                 imwrite(mid, sprintf('%s/%s/%s_%d.png', directory, session.name, fname, i));
                 Y(end+1) = emot;
             end
         end
         % this comes later because neutral comes later
         for i=1:3
-            imwrite(uint8(neut(:,:,:,i)), sprintf('%s/%s/%s_neut%d.png', directory, session.name, fname, i));
+%             imwrite(uint8(neut(:,:,:,i)), sprintf('%s/%s/%s_neut%d.png', directory, session.name, fname, i));
             Y(end+1) = 0;
         end
         fname, session.name
     end
 end
 
-Y = mmi_to_fer(Y);
-save mmiY.mat Y
+Y = mmi_to_molla(Y);
+save data/MMI_Y.mat Y
     
