@@ -11,8 +11,8 @@ function confusion_matrix(predY, testY, filename, titlee)
         end
     end
     % keep fer. i like it. 
-    labels = {'Anger','Disgust','Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'}; 
-    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true);
+    labels = {'Anger','Disgust','Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'}; 
+    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'FontSize', 15, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true);
     xlabel('Output Class'); ylabel('Target Class');
     title(titlee);
     saveas(graph, filename);

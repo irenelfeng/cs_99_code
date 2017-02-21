@@ -1,6 +1,7 @@
 % create matrices
-function asd_confusion_matrix
+function [Total_TD, Total_ASD] = asd_confusion_matrix
 figure;
+addpath('helperfuncs')
 load('/Users/irenefeng/Documents/Computer_Social_Vision/cs_99_code/PYTHON/helperfuncs/dartmouthTDResults.mat');
 Conf_mat = confusionmat(testY, predY); % target across Y-axis, response across X-axis
     Percent_Conf_mat = zeros(size(Conf_mat));
@@ -88,8 +89,8 @@ ASD_Philip = [ASD_Philip(:,1:4) zeros(7,1) ASD_Philip(:,5) zeros(7,1)];
 TD_Eack = [TD_Eack(1,:); zeros(1,5); TD_Eack(2:5,:); zeros(1,5);];
 % add columns
 TD_Eack = [TD_Eack(:,1) zeros(7,1) TD_Eack(:,2:5) zeros(7,1)];
-ASD_Eack = [ASD_Eack(1:4,:); zeros(1,5); ASD_Eack(5,:); zeros(1,5);];
-ASD_Eack = [ASD_Eack(:,1:4) zeros(7,1) ASD_Eack(:,5) zeros(7,1)];
+ASD_Eack = [ASD_Eack(1,:); zeros(1,5); ASD_Eack(2:5,:); zeros(1,5);];
+ASD_Eack = [ASD_Eack(:,1) zeros(7,1) ASD_Eack(:,2:5) zeros(7,1)];
 
 % dartmouth conf in actual numbers already
 ASD_Matrices = zeros(7,7, length(Weights_TD));
@@ -122,8 +123,11 @@ for i = 1:length(Weights_TD)
 end
 
 % then divide each row by row_divide
-Perc_Total_ASD = Total_ASD ./ repmat(row_ASDdivide, 1, 7);
-Perc_Total_TD = Total_TD ./ repmat(row_divide, 1, 7);
+% Perc_Total_ASD = Total_ASD ./ repmat(row_ASDdivide, 1, 7);
+% Perc_Total_TD = Total_TD ./ repmat(row_divide, 1, 7);
+% why do i need to do this... i can just get the sum for each row haha
+Perc_Total_ASD = Total_ASD ./ repmat(sum(Total_ASD, 2), 1, 7);
+Perc_Total_TD = Total_TD ./ repmat(sum(Total_TD, 2), 1, 7);
 
 ASD_TD_TOTAL = makeDiffConfMat(Perc_Total_ASD, Perc_Total_TD); 
 graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'FontSize', 15, 'Colormap', 'money');

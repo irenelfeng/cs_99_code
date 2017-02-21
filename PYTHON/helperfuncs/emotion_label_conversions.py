@@ -4,6 +4,18 @@ def invert_dic(dic):
 	inv_map = {v: k for k, v in dic.iteritems()}
 	return inv_map
 
+# lol i don't know 
+def dartmouth_dic(): 
+	return {
+		0: 'Neutral',
+		4: 'Fear',
+		5: 'Anger',
+		6: 'Disgust',
+		7: 'Happiness',
+		8: 'Sad',
+		9: 'Surprise'
+	}
+
 # Alphabetical but Neutral is at the end. 
 def fer_dic(): 
 	return {
@@ -16,7 +28,7 @@ def fer_dic():
 		6:'Neutral' 
 	}
 
-# Alphabetical but Neutral first
+# Alphabetical but Neutral first, well i don't think there's actually any neutral 
 def ck_dic():
 	return {
 		0:'Neutral', 
