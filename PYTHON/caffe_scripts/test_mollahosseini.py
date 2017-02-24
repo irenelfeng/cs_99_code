@@ -8,9 +8,9 @@ import os
 sys.path.append(os.path.abspath('../helperfuncs'))
 import emotion_label_conversions
 
-database = 'fer'
-modes = ['original']
-names = ['whole']
+database = 'ck'
+modes = ['face_detected']
+names = ['fd']
 # modes = ['whole','flipped', 'bottomblur', 'topblur'] # different modes:
 # face_detected as well. 
 # names = ['whole,','flipped', 'top', 'bottom']
@@ -31,8 +31,8 @@ if database == 'fer':
 	acc_set_conv = map(lambda x: to_molla[x], acc_set)
 else: # cohn-kanade
 	IMAGE_DIR = PARENT_DIR + 'cohn-kanade-plus/cohn-kanade/for-molla/'
-	LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/ck_Y.mat'
-	labels = sio.loadmat(LABELS_FILE)['ck_Y']
+	LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/CK_Y.mat'
+	labels = sio.loadmat(LABELS_FILE)['Y']
 	acc_set = labels[0] # already in molla code oops 
 	acc_set_conv = acc_set
 	test_set = ('','')
@@ -66,9 +66,12 @@ for n in range(len(modes)):
 	if database == 'fer':
 		loop = map(lambda x: '{0}.png'.format(x), range(test_set[0], test_set[1]))
 	else: # ck - didn't do the formatting too right
-		loop = os.listdir(IMAGE_DIR+'/'+modes[n])
+		loop = sorted(os.listdir(IMAGE_DIR+'/'+modes[n]))
 
 	for i in loop:
+		print i
+		if '.DS_Store' in i:
+			continue
 		#load the image in the data layer
 		im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
 		# generate crops 
@@ -79,9 +82,11 @@ for n in range(len(modes)):
 		for j in range(10):
 			net.blobs['data'].data[j, ...] = transformer.preprocess('data', crops[j])
 		
-		out = net.forward() 
+		out = net.forward()
+		print out 
 		# previous, out would be loss1/classifier
 		p = np.argmax(np.average(out['prob'], axis=0))
+		# p = np.argmax(np.average(out['loss1/classifier'], axis=0))
 		predictions.append(p)
 		# print 'label for {0}, {1}'.format(i, p)
 
@@ -95,7 +100,7 @@ for n in range(len(modes)):
 	acc = (len(acc_set) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(acc_set)
 	print 'accuracy is {0}'.format(acc)
 
-	sio.savemat('mollahosseini_test_results_{1}_{0}_{2}_{3}'.format(names[n], database, test_set(0), test_set(1)),
+	sio.savemat('mollahosseini_test_results_{1}_{0}_{2}_{3}'.format(names[n], database, test_set[0], test_set[1]),
 	 			{'predY':predictions, 'testY':acc_set_conv})
 
 # in matlab, then we can call confusion_matrix(predY, testY, stringpng, stringtitle)
