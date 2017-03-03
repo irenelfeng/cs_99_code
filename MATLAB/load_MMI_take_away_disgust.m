@@ -1,8 +1,7 @@
-% ADFES load without disgust for nonCNN 
-
+% MMI load without disgust for nonCNN 
 directory = '../../mmi/face_detected';
 files = dir([directory,'/','*.png']);
-X = zeros(0, 48*48); 
+X = zeros(0, 128*128); 
 new_Y = [];
 load('data/MMI_Y.mat');
 c = 1;
@@ -29,13 +28,13 @@ for file = files'
     end
     
     im = imread([directory,'/',file.name]);
-    noncnnim = imresize(im, [48,48]);
+    noncnnim = imresize(rgb2gray(im), [128,128]);
     noncnnim = noncnnim'; % flip 
     X(end+1,:) = noncnnim(:);
-    new_Y(end+1) = Y(c);
+    % new_Y(end+1) = Y(c);
     c  = c + 1;
 end
 
-save data/MMI_rmDisgustX.mat X
-Y = new_Y;
-save data/MMI_rmDisgustY.mat Y 
+save data/MMI_128rmDisgustX.mat X
+% Y = new_Y;
+% save data/MMI_rmDisgustY.mat Y 
