@@ -10,11 +10,10 @@ function confusion_matrix(predY, testY, filename, titlee)
             Percent_Conf_mat(i,:) = Conf_mat(i,:)./sum(Conf_mat(i,:))*100; %sum across row: as in output class
         end
     end
-    
-    % molla labels
-    labels = {'Angry','Disgust','Fear', 'Happy', 'Neutral','Sad', 'Surprise'}; 
-    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'FontSize', 15, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true,'Colorbar',true);
-    xlabel('Output Class'); ylabel('Target Class'); % that there 1 is to show numbers i think
+    % keep fer. i like it. 
+    labels = {'Anger','Disgust','Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'}; 
+    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'FontSize', 15, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true);
+    xlabel('Output Class'); ylabel('Target Class');
     title(titlee);
     saveas(graph, filename);
    
