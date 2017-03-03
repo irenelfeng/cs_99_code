@@ -1,8 +1,8 @@
 % given X, Y, returns model and confusion matrix 
 % calls model_selection.m, confusion_matrix.m
 % change this line from LDA to SVM
-type = 'SVM';
-
+type = 'LDA';
+halve = 'bottom'; % whole, top, or bottom. 
 % gets date 
 d = date; 
 
@@ -27,19 +27,21 @@ testY = double(Y(setdiff(train+1:size(X,1), [disgust;neutral])));
 % comment line if you want to do your own training
 
 
-% comment next 1 and then uncomment next three if you want to specify
-[MDL, s, o, comps] = model_selection(trainX, trainY, 3, 8, 5, type);
-%s = 3;
-%o = 8; 
-%MDL = train_Mc_SVM(features,trainY);
-%comps = 0;
-features = zeros(size(trainX,1), s*o*200);
+% comment next 1 and then uncomment next two if you want to specify
+% [MDL, s, o, comps] = model_selection(trainX, trainY, [3:5], [6,8], 5, type, halve);
+s = 3;
+o = 8;
+features = [];
 for i=1:size(trainX,1)
-    features(i, :) = image_features(trainX(i,:), s, o)'; % call image features 
-end  
+    features = [features; image_features(trainX(i,:), s, o, halve)']; % call image features 
+end 
+% also uncomment this if you want to specify . ran this. super similar 
+[comps, points, resid] = pca(features);
+MDL = train_Mc_LDA(points(:,1:79),trainY);
+predY = MDL_predict(MDL, testX, s, o, halve, comps(:,1:79), mean(features));
 
-predY = MDL_predict(MDL, testX, s, o, comps, mean(features));
+%predY = MDL_predict(MDL, testX, s, o, halve, comps, mean(features));
 
-save(sprintf('MDL_nonFER_PCA%ss%do%d', type, s, o), 'MDL');
-confusion_matrix(predY, testY, sprintf('confusionWholeTrainedNonFER%s-s%d-o%d%s.png', type, s, o,d), ...
-                sprintf('Confusion WholeTrained NonFER %s-s%d-o%d', type, s, o));
+save(sprintf('MDL_%s_nonFER_PCAfoveated%ss%do%d', halve, type, s, o), 'MDL');
+confusion_matrix(predY, testY, sprintf('confusion%sTrainedNonFERfoveated%s-s%d-o%d%s.fig', halve, type, s, o,d), ...
+                sprintf('Confusion %sTrained NonFER foveated%s-s%d-o%d', halve, type, s, o));

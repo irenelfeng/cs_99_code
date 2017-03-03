@@ -7,7 +7,7 @@
 % si = number of sizes best fit
 % or = number of orientations best fit 
 % comps = PCA components reduced to
-function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, type)
+function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, type, halve)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
@@ -26,9 +26,9 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
         for o=orientations
             %% do N cross validation
             % get features for X
-            features = zeros(size(X, 1), s*o*100*2); % grid size * 2. 
+            features = []; % oh no it's no longer grid size * 2. 
             for i=1:size(X,1)
-                features(i, :) = image_features(X(i,:), s, o)'; % call image features 
+                features = [features; image_features(X(i,:), s, o, halve)']; % call image features 
             end
             
             errors = zeros(N, 1);
@@ -64,10 +64,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
                 test_features = features(test_idxes, :); % grid size * 2. 
 %                 % need to select the same number of features for pca
                 test_features_pca = test_features;
-                % comment next 2 lines if you do not want to do pca
-%                 [~, points] = pca(test_features);
-%                 test_features_pca = points(:, 1:size(pca_features, 2));
-                % oh actually don't I test by taking the test_features -
+                % I test by taking the test_features -
                 % mean(train) * comps, to get the new points in the new
                 % feature space... oh yeah. 
                 feat_mean = mean(trainX);
@@ -98,9 +95,9 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
     [m,idx] = min(error);
     si = sizes(ceil(idx/(length(orientations)))); % get the size at the index of error
     or = orientations(mod(idx-1, length(orientations))+1);% get the orientations
-    features = zeros(size(X, 1), si*or*100*2); % grid size * 2. 
+    features = []; 
     for i=1:size(X,1)
-        features(i, :) = image_features(X(i,:), si, or)'; % call image features on each file 
+        features = [features ; image_features(X(i,:), si, or, halve)']; % call image features on each file 
     end
     
     [comps,pca_features, resid] = bestPCA(features);
