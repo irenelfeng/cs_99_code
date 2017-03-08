@@ -6,7 +6,7 @@ elseif nargin < 5
     foveated = 1; % automatically foveated
 end
 
-J= reshape(imvec, [48 48])';
+J= reshape(imvec, [sqrt(length(imvec)), sqrt(length(imvec))])';
 [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(J,0,0, 2*pi, numSizes, numOrientations); 
 % we can ignore grid pos because they are the same for every image 
 if foveated

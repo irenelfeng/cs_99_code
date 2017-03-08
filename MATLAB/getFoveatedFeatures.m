@@ -1,9 +1,19 @@
 function [features] = getFoveatedFeatures(JetsMagnitude, JetsPhase, numSizes, numOrientations, halve)
-    
+    gridSize = sqrt(size(JetsMagnitude, 1));
+    half = floor(gridSize/2); 
+    fifth = floor(gridSize/5);
     if strcmp(halve,'top') == 1
-        [tx,ty] = meshgrid(-5:4, -2:7); % assuming grid of 10*10 
+        if mod(gridSize, 2) == 0
+            [tx,ty] = meshgrid(-half:half-1, -fifth:4*fifth-1);
+        else
+            [tx,ty] = meshgrid(-half:half, -fifth:4*fifth);
+        end
     else
-        [tx,ty] = meshgrid(-5:4, -7:2); 
+        if mod(gridSize, 2) == 0
+            [tx,ty] = meshgrid(-half:half-1, -fifth:4*fifth-1);
+        else
+            [tx,ty] = meshgrid(-half:half, -fifth:4*fifth);
+        end
     end
     
     Total = [];
