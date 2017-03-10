@@ -1,4 +1,4 @@
-function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors)
+function [JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(Im,ComplexOrSimple,GridSize,Sigma, sizes, ors, DefaultOrFoveated)
 
 %%
 %% The goal of this function is to transform a image with gabor wavelet
@@ -54,7 +54,7 @@ if nargin < 4
 end
 
 if nargin < 7
-    mode = 'whole';
+   DefaultOrFoveated = 0; % DEFAULT
 end
     
 
@@ -79,12 +79,27 @@ if SizeX==256
     Grid = xx + yy*1i;
     Grid = Grid(:); % vectorizes the grid
 elseif SizeX==48
-    if GridSize == 0 % 10 * 10
-        RangeX = 4:4:40; 
-        RangeY = 4:4:40;
+    if GridSize == 0 % 11 * 11
+        RangeX = 4:4:44; 
+        RangeY = 4:4:44;
     else
         RangeX = 1:48; % just all of it
         RangeY = 1:48;
+    end    
+    [xx,yy] = meshgrid(RangeX,RangeY);
+    Grid = xx + yy*i;
+    Grid = Grid(:);
+elseif SizeX==128
+    if GridSize == 0 % 11 x 11
+        RangeX = 9:11:119;
+        RangeY = 9:11:119; 
+        % 10x10 is a tiny bit offset huh? 
+        % 1:118
+        % 11 x 11 = do 9:11:119 instead maybe to match lades
+        % 9 x 9: 20:11:108?
+    else
+        RangeX = 1:128; % just all of it
+        RangeY = 1:128;
     end    
     [xx,yy] = meshgrid(RangeX,RangeY);
     Grid = xx + yy*i;
@@ -112,12 +127,14 @@ if ComplexOrSimple == 0
     JetsPhase      = zeros(length(Grid),nScale*nOrientation);
 else
     JetsMagnitude  = zeros(length(Grid),2*nScale*nOrientation);
-    JetsPhase      = zeros(length(Grid),nScale*nOrientation);
+    JetsPhase      = zeros(length(Grid),2*nScale*nOrientation);
 end
 
 for LevelL = 0:nScale-1
-    k0 = (pi/2)*(1/sqrt(2))^LevelL; % the size of the kernel
+    % k0 = (pi/2)*(1/2)^LevelL;% octaves
+  k0 = (pi/2)*(1/sqrt(2))^LevelL; % the size of the kernel % half octaves
 %     sprintf('k0 is %d', k0) % smaller as number goes up (1.57 -> 1.11 ... ) as (1/sqrt(2))^x
+%     
     for DirecL = 0:nOrientation-1
         kA = pi*DirecL/nOrientation;
         k0X = k0*cos(kA);
@@ -130,12 +147,13 @@ for LevelL = 0:nScale-1
         FreqKernel = fftshift(FreqKernel);
         % visualizing kernels in spatial domain
 %         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
-%         imagesc(fftshift(real(ifft2(FreqKernel)))); 
+         % imagesc(fftshift(real(ifft2(FreqKernel))));
 %         colormap gray;
 %         title(sprintf('size %d, orientation %d', LevelL, DirecL));
 %         
         %% convolute the image with a kernel specified scale and orientation
-        TmpFilterImage = ImFreq.*FreqKernel; % convolution is just an inner product: freqKernel 
+        TmpFilterImage = ImFreq.*FreqKernel; % convolution is product in the fourier domain
+        % visualize convolution , it doesn't look like much
 %         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
 %         imagesc(real(ifft2(TmpFilterImage)));
 %         colormap gray

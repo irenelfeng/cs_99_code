@@ -88,6 +88,7 @@ for n in range(len(modes)):
 		loop = filenames
 
 	for i in loop:	
+
 		#load the image in the data layer
 		if database == 'val':
 			im = caffe.io.load_image(IMAGE_DIR+'/'+i)
@@ -102,9 +103,11 @@ for n in range(len(modes)):
 		for j in range(10):
 			net.blobs['data'].data[j, ...] = transformer.preprocess('data', crops[j])
 		
-		out = net.forward() 
+		out = net.forward()
+		print out 
 		# previous, out would be loss1/classifier
 		p = np.argmax(np.average(out['prob'], axis=0))
+		# p = np.argmax(np.average(out['loss1/classifier'], axis=0))
 		predictions.append(p)
 		# print 'label for {0}, {1}'.format(i, p)
 
@@ -119,7 +122,7 @@ for n in range(len(modes)):
 	print 'accuracy is {0}'.format(acc)
 
 	sio.savemat('mollahosseini_test_results_noFER_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
-	 			{'predY':predictions, 'testY':acc_set_conv})
+	 			{'predY':predictions[0], 'testY':acc_set_conv[0]})
 
 # in matlab, then we can call confusion_matrix(predY, testY, stringpng, stringtitle)
 # for confusion matrix
