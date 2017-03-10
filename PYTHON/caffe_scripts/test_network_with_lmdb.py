@@ -1,6 +1,7 @@
 import lmdb 
 import caffe
 import numpy as np
+import scipy.io as sio
 
 LMDB_path = '/home/ifsdata/scratch/cooperlab/irene/CNN_48_images/LMDB/'
 mean_blob = caffe.io.caffe_pb2.BlobProto()
@@ -13,8 +14,8 @@ mean = mean_array.mean(1).mean(1)
 PARENT_DIR = '/home/anthill/ifeng/cs99/'
 #PARENT_DIR = '/Users/irenefeng/Documents/Computer_Social_Vision/'
 CAFFE_DIR = PARENT_DIR + 'caffe/'
-net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy_ft.prototxt', 1,
-                                weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/ft__iter_240000.caffemodel')
+net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy.prototxt', 1,
+                                weights=CAFFE_DIR + 'models/mollahosseini_fer/training_snapshot_googlenet_quick_iter_100000.caffemodel')
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 
 transformer.set_mean('data', np.array(mean))
@@ -37,7 +38,7 @@ for key, value in lmdb_cursor:
     image = image.astype(np.uint8)
     # change channels from 3, 48, 48 to 48, 48, 3
     image = np.swapaxes(image, 2, 0)
-    image = np.swapaxes(image, 0, 1)
+    # image = np.swapaxes(image, 0, 1)
     crops = caffe.io.oversample([image], (40, 40))
         # uncomment if not using crops 
         #net.blobs['data'].reshape(1,3,120,120) 
@@ -46,6 +47,7 @@ for key, value in lmdb_cursor:
         net.blobs['data'].data[j, ...] = transformer.preprocess('data', crops[j])
     
     out = net.forward() 
+    print out
     p = np.argmax(np.average(out['prob'], axis=0))
     predictions.append(p)
     values.append(label)
@@ -53,7 +55,7 @@ for key, value in lmdb_cursor:
 acc = (len(predictions) - np.count_nonzero(np.array(values) - np.array(predictions))) * 1.0 / len(predictions)
 print acc 
 
-sio.savemat('ft_400000_test_results_whole_valmdb',
-                {'predY':predictions, 'testY':values})
+sio.savemat('mollahosseini_test_results_whole_valmdb',
+                {'predY':np.array(predictions), 'testY':np.array(values)})
 
     
