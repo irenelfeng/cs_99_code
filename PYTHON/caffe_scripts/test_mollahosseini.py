@@ -17,6 +17,19 @@ names = ['fd']
 # modes = ['inverted'] 
 # names = ['inverted'] 
 
+# uncomment below if using RGB - this is mollahosseini 
+# meanR = 79
+# meanG = 86
+# meanB = 108
+# mean = [meanR, meanG, meanB];
+# uncomment for my own training set
+mean_blob = caffe.io.caffe_pb2.BlobProto()
+with open('/home/ifsdata/scratch/cooperlab/irene/CNN_48_images/LMDB/40_mean.binaryproto') as f:
+    mean_blob.ParseFromString(f.read())
+mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
+    (mean_blob.channels, mean_blob.height, mean_blob.width))
+mean = mean_array.mean(1).mean(1)
+
 PARENT_DIR = '/Users/irenefeng/Documents/Computer_Social_Vision/'
 CAFFE_DIR = PARENT_DIR + 'caffe/'
 
@@ -37,29 +50,18 @@ else: # cohn-kanade
 	acc_set_conv = acc_set
 	test_set = ('','')
 
-# need to add on for ck+ 
 
 net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy.prototxt', 1,
 								weights=CAFFE_DIR + 'models/mollahosseini_fer/training_snapshot_googlenet_quick_iter_100000.caffemodel')
+transformer.set_mean('data', np.array(mean))
+transformer.set_transpose('data', (2,0,1)) # i don't know what the transpose is for 
+transformer.set_channel_swap('data', (2,1,0)) # from RGB to BGR order 
+transformer.set_raw_scale('data', 255.0) # just in case not 0-255. 
 
-
-# net = caffe.Net(CAFFE_DIR+'models/bvlc_reference_caffenet/deploy.prototxt', 1,
-#  weights=CAFFE_DIR+'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel')
 
 # need to transform for some reason
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 
-# mean=np.zeros((3,40,40), dtype=np.int);
-	   # mean[0,:,:]=channelWiseMeanR;
-	   # mean[1,:,:]=channelWiseMeanG;
-	   # mean[2,:,:]=channelWiseMeanB;
-meanR = 79
-meanG = 86
-meanB = 108
-transformer.set_mean('data', np.array([meanR, meanG, meanB]))
-transformer.set_transpose('data', (2,0,1)) # i don't know what the transpose is for 
-transformer.set_channel_swap('data', (2,1,0)) # from RGB to BGR order 
-transformer.set_raw_scale('data', 255.0) # just in case not 0-255. 
 
 for n in range(len(modes)):
 	predictions = []
