@@ -3,7 +3,7 @@ if nargin < 4
     halve = 0;
     foveated = 0;
 elseif nargin < 5
-    foveated = 1; % automatically foveated
+    foveated = 0; % automatically foveated
 end
 
 J= reshape(imvec, [sqrt(length(imvec)), sqrt(length(imvec))])';
@@ -16,10 +16,11 @@ switch halve
     case 'top'
         % for every column of Jets Magnitude (a different filter), reshape
         % it and get only the top half of it
-            Total = zeros(numSizes * numOrientations * 200, 1);
+            Total = zeros(numSizes * numOrientations * size(JetsMagnitude,1) * 2, 1);
+            gridLength = sqrt(size(JetsMagnitude,1));
             for i = 0:size(JetsMagnitude, 2)-1
-                mags = reshape(JetsMagnitude(:, i+1), [10 10]); % reshapes it into a grid, columnwise
-                phases = reshape(JetsPhase(:, i+1), [10 10]); % reshapes it to a grid
+                mags = reshape(JetsMagnitude(:, i+1), [gridLength gridLength]); % reshapes it into a grid, columnwise
+                phases = reshape(JetsPhase(:, i+1), [gridLength gridLength]); % reshapes it to a grid
                 columnphases = phases(1:5, :);
                 columnmags = mags(1:5, :);
                 Total(i*100+1:i*100+50) = columnmags(:);
@@ -32,8 +33,8 @@ switch halve
 
         Total = zeros(numSizes * numOrientations * 200, 1);
         for i = 0:size(JetsMagnitude, 2)-1
-            mags = reshape(JetsMagnitude(:, i+1), [10 10]);
-            phases = reshape(JetsPhase(:, i+1), [10 10]);
+            mags = reshape(JetsMagnitude(:, i+1), [gridLength gridLength]);
+            phases = reshape(JetsPhase(:, i+1), [gridLength gridLength]);
             columnphases = phases(6:10, :);
             columnmags = mags(6:10, :);
             Total(i*100+1:i*100+50) = columnmags(:);
