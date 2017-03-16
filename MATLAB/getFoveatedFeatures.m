@@ -24,6 +24,7 @@ function [features] = getFoveatedFeatures(JetsMagnitude, JetsPhase, numSizes, nu
     for i=1:size(filters,1)
         numFilters = (numSizes-filters(i))*numOrientations;
         % sprintf('taking %d filters at this point', numFilters)
+        
         Total = [Total; reshape(JetsMagnitude(i, filters(i)*numOrientations+1:end), [numFilters,1])];
         Total = [Total; reshape(JetsPhase(i, filters(i)*numOrientations+1:end), [numFilters,1])];
     end

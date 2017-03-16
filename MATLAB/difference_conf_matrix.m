@@ -1,5 +1,6 @@
 function difference_conf_matrix(predY, testY, predY2, testY2, filename, titlee)
     % clf
+    % testY - predY
     %% make testY and predY in matrix form 
     %% compares the PERCENTAGES of correct guesses (not raw numbers) 
     Conf_mat = confusionmat(testY, predY); % target across Y-axis, predictions across X-axis
@@ -21,7 +22,7 @@ for i=1:size(Conf_mat,1)
 end
     % expecting mollahosseini code
     labels = {'Angry','Disgust','Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'}; 
-    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'Colormap', 'money','ShowAllTicks',1);
+    graph = heatmap(Percent_Conf_mat, labels, labels, 1,'FontSize', 15, 'Colormap', 'money','ShowAllTicks',1);
     xlabel('Output Class'); ylabel('Target Class');
     title(titlee);
     saveas(graph, filename);
