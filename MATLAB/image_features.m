@@ -48,6 +48,7 @@ switch mode
             columnmags = mags(ceil(gridLength/2)+1:gridLength, :);
             Total(i*(gridLength*rows*2)+1:i*(gridLength*rows*2)+rows*gridLength) = columnmags(:);
             Total(i*(gridLength*rows*2)+rows*gridLength+1:i*(gridLength*rows*2)+2*rows*gridLength) = columnphases(:);
+
         end
         features = Total;
     otherwise

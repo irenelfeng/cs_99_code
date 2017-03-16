@@ -13,8 +13,10 @@ if isempty(strfind(mode, 'blurred_'))
 else 
     if ~isempty(strfind(mode, 'bottom'))
         load('data/bottom120X.mat');
+        X = bottomX;
     else
         load('data/top120X.mat');
+        X = topX;
     end
 end
 %load('bottom120X.mat');
