@@ -2,8 +2,8 @@
 % calls model_selection.m, confusion_matrix.m
 % change this line from LDA to SVM
 type = 'LDA';
-mode = 'top'; % whole, top, bottom, local, global, blurred_top_, blurred_bottom_.
-foveated = 1;
+mode = 'local'; % whole, top, bottom, local, global, blurred_top_, blurred_bottom_.
+foveated = 0;
 % gets date 
 d = date; 
 
@@ -28,9 +28,9 @@ testY = double(Y(setdiff(train+1:size(X,1), [disgust;neutral])));
 
 
 % comment next 1 and then uncomment next two if you want to specify
-% [MDL, s, o, comps] = model_selection(trainX, trainY, [2,3,5], 8, 5, type, mode);
-s = 3;
-o = 8;
+[MDL, s, o, comps] = model_selection(trainX, trainY, [3:5], 8, 5, type, mode, foveated);
+% s = 5;
+% o = 8;
 features = [];
 for i=1:size(trainX,1)
     features = [features; image_features(trainX(i,:), s, o, mode, foveated)']; % call image features 
@@ -40,10 +40,10 @@ end
 % predY = MDL_predict(MDL, testX, s, o, mode, comps(:,1:79), mean(features));
 if strcmp(type, 'LDA') == 1 
     % [comps, points, resid] = bestPCA(features); 
-    [comps, points, resid] = bestPCA(features); 
+    % [comps, points, resid] = pca(features); 
     % or just regular pca if you know how many
     
-    MDL = train_Mc_LDA(points,trainY);
+    % MDL = train_Mc_LDA(points(:,1:96),trainY);
     predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps, mean(features));
     save(sprintf('MDLcomps_%s_nonFERs%ss%do%d', mode, type, s, o), 'comps');
 else 
