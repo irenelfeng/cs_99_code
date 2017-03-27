@@ -7,7 +7,7 @@
 % si = number of sizes best fit
 % or = number of orientations best fit 
 % comps = PCA components reduced to
-function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, type, halve)
+function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, type, halve, foveated)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
@@ -28,7 +28,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
             % get features for X
             features = []; % oh no it's no longer grid size * 2. 
             for i=1:size(X,1)
-                features = [features; image_features(X(i,:), s, o, halve)']; % call image features 
+                features = [features; image_features(X(i,:), s, o, halve, foveated)']; % call image features 
             end
             
             errors = zeros(N, 1);
@@ -97,7 +97,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
     or = orientations(mod(idx-1, length(orientations))+1);% get the orientations
     features = []; 
     for i=1:size(X,1)
-        features = [features ; image_features(X(i,:), si, or, halve)']; % call image features on each file 
+        features = [features ; image_features(X(i,:), si, or, halve, foveated)']; % call image features on each file 
     end
     
     %% retrain with these features

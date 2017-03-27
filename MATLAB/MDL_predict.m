@@ -6,7 +6,9 @@ function [ predY ] = MDL_predict( MDL, testX, s, o, halve, foveated, comps, f_me
     for i=1:size(testX,1)
         features = [features; image_features(testX(i,:), s, o, halve, foveated )']; 
     end
-    if nargin >= 7
+    if nargin < 7 || comps == 0 
+        test_features = features;
+    else
         % now project the test points into space by multiplying the components by
         % the new points 
         % make sure that the new points are zero-meaned to the TRAINING set
