@@ -148,7 +148,7 @@ for LevelL = 0:nScale-1
         % it is a band-pass filter 
         %% use fftshift to change DC back the corners - the way it should be (but unintuitive)
         FreqKernel = fftshift(FreqKernel);
-        imagesc(FreqKernel);
+        % imagesc(FreqKernel);
         % this kernel has values in the 
         % visualizing kernels in spatial domain
 %         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
