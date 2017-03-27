@@ -24,9 +24,12 @@ function [features] = getFoveatedFeatures(JetsMagnitude, JetsPhase, numSizes, nu
     for i=1:size(filters,1)
         numFilters = (numSizes-filters(i))*numOrientations;
         % sprintf('taking %d filters at this point', numFilters)
-        % but now we aren't going to take these filters
-        Total = [Total; reshape(JetsMagnitude(i, filters(i)*numOrientations+1:(filters(i)+1)*numOrientations), [numOrientations,1])];
-        Total = [Total; reshape(JetsPhase(i, filters(i)*numOrientations+1:(filters(i)+1)*numOrientations), [numOrientations,1])];
+        Total = [Total; reshape(JetsMagnitude(i, filters(i)*numOrientations+1:end), [numFilters,1])];
+        Total = [Total; reshape(JetsPhase(i, filters(i)*numOrientations+1:end), [numFilters,1])];
+        % UNCOMMENT FOR FOVEATED2 - based on size, only 1 filter at each
+        % location
+        % Total = [Total; reshape(JetsMagnitude(i, filters(i)*numOrientations+1:(filters(i)+1)*numOrientations), [numOrientations,1])];
+        % Total = [Total; reshape(JetsPhase(i, filters(i)*numOrientations+1:(filters(i)+1)*numOrientations), [numOrientations,1])];
     end
     features = Total;
 end

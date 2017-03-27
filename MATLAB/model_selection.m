@@ -102,7 +102,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
     
     %% retrain with these features
 
-    sprintf('%s sizes and %s orientations and reduced to %s PCA components', si, or, length(resid));
+    sprintf('%s sizes and %s orientations', si, or);
     if (strcmp(type, 'LDA') == 1)
         [comps,pca_features, resid] = bestPCA(features);
         MDL = train_Mc_LDA(pca_features, Y);

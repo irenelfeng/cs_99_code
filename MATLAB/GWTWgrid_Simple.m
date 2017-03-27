@@ -142,9 +142,14 @@ for LevelL = 0:nScale-1
         %% generate a kernel specified scale and orientation, which has DC on the center
         %% the kernel is a 48*48 image, and has DC = the value of the MEAN freq of the images 
         %% and is real-valued
+        % tx and ty are -pi to pi 
         FreqKernel = 2*pi*(exp(-(Sigma/k0)^2/2*((k0X-tx).^2+(k0Y-ty).^2))-exp(-(Sigma/k0)^2/2*(k0^2+tx.^2+ty.^2)));
+        % this kernel is something in the FOURIER space 
+        % it is a band-pass filter 
         %% use fftshift to change DC back the corners - the way it should be (but unintuitive)
         FreqKernel = fftshift(FreqKernel);
+        imagesc(FreqKernel);
+        % this kernel has values in the 
         % visualizing kernels in spatial domain
 %         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
          % imagesc(fftshift(real(ifft2(FreqKernel))));
@@ -160,6 +165,10 @@ for LevelL = 0:nScale-1
         %% calculate magnitude and phase
         if ComplexOrSimple == 0
             TmpGWTMag = abs(ifft2(TmpFilterImage)); % returns ck = sqrt(ak^2 + bk^2), real^2 + imag^2
+            % imagesc(TmpGWTMag); 
+            % this visualizes 
+            % the gabor filter
+            % convoluted with the image in the spatial domain. it's pretty cool. 
             TmpGWTPhase = angle(ifft2(TmpFilterImage)); % reutnrs ck = arctan(bk/ak) but what angle is this? always +- pi
             %% get magnitude and phase at specific positions
             tmpMag = TmpGWTMag(RangeX,RangeY);

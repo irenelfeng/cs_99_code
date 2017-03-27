@@ -11,9 +11,7 @@ function [ predY ] = MDL_predict( MDL, testX, s, o, halve, foveated, comps, f_me
         % the new points 
         % make sure that the new points are zero-meaned to the TRAINING set
         test_features = (features - repmat(f_mean, size(features, 1),1))*comps;
-    else
-        % no components
-        test_features = features;
+        
     end
     
     for i=1:size(testX,1)

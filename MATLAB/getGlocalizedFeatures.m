@@ -2,10 +2,8 @@
 function [JetsMagsGlocal, JetsPhaseGlocal] = getGlocalizedFeatures(JetsMagnitude, JetsPhase, numSizes, numOrientations, mode)
     sub = floor(numSizes*2/3);
     if strcmp(mode,'local') == 1
-        % get the s smallest sizes, every orientation        
-        for i=0:numSizes-1
-            m = [m i*numOrientations+1:i*numOrientations+sub+1];
-        end
+        % get the sub smallest sizes, every orientation        
+        m = 1:(sub-1)*numOrientations+1;
         JetsMagsGlocal = JetsMagnitude(:, m);
         % check the size of this is 
         % size(JetsMagnitude, 1), sub*numOrientations)
