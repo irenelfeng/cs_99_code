@@ -25,6 +25,6 @@ function [comps, newpoints, d] = bestPCA(X)
     comps  = c(:,1:cutoff+minimum);
     newpoints = points(:,1:cutoff+minimum);
     d = sum(score(cutoff+minimum+1:end))/sum(score)*100;
-    sprintf('residual variance in with %f captured is %f percent',  size(comps, 2), d)
+    sprintf('residual variance in with %f (un)captured is %f percent',  size(comps, 2), d)
     
 end

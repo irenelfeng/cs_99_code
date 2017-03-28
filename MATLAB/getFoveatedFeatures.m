@@ -8,11 +8,11 @@ function [features] = getFoveatedFeatures(JetsMagnitude, JetsPhase, numSizes, nu
         else
             [tx,ty] = meshgrid(-half:half, -fifth:4*fifth);
         end
-    else
+    else % bottom
         if mod(gridSize, 2) == 0
-            [tx,ty] = meshgrid(-half:half-1, -fifth:4*fifth-1);
+            [tx,ty] = meshgrid(-half:half-1, -fifth*4:fifth-1);
         else
-            [tx,ty] = meshgrid(-half:half, -fifth:4*fifth);
+            [tx,ty] = meshgrid(-half:half, -fifth*4:fifth);
         end
     end
     
@@ -20,12 +20,16 @@ function [features] = getFoveatedFeatures(JetsMagnitude, JetsPhase, numSizes, nu
     distanceGrid = min(numSizes - 1, floor(sqrt(tx.^2 + ty.^2))); 
     % telling you how many filters we are excluding, can only exclude up to
     % numSizes - 1
-    filters = distanceGrid(:); % how many filters we /aren't/ taking
+    filters = distanceGrid(:); % which sized-filter we are taking
     for i=1:size(filters,1)
         numFilters = (numSizes-filters(i))*numOrientations;
         % sprintf('taking %d filters at this point', numFilters)
         Total = [Total; reshape(JetsMagnitude(i, filters(i)*numOrientations+1:end), [numFilters,1])];
         Total = [Total; reshape(JetsPhase(i, filters(i)*numOrientations+1:end), [numFilters,1])];
+        % UNCOMMENT FOR FOVEATED2 - based on size, only 1 filter at each
+        % location
+        % Total = [Total; reshape(JetsMagnitude(i, filters(i)*numOrientations+1:(filters(i)+1)*numOrientations), [numOrientations,1])];
+        % Total = [Total; reshape(JetsPhase(i, filters(i)*numOrientations+1:(filters(i)+1)*numOrientations), [numOrientations,1])];
     end
     features = Total;
 end

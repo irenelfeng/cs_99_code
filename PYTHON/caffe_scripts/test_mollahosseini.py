@@ -18,10 +18,7 @@ names = ['fd']
 # modes = ['inverted'] 
 # names = ['inverted'] 
 
-#PARENT_DIR = '/Users/irenefeng/Documents/Computer_Social_Vision/'
-#CAFFE_DIR = PARENT_DIR + 'caffe/'
-PARENT_DIR = '/home/anthill/ifeng/cs99/'
-#PARENT_DIR = '/Users/irenefeng/Documents/Computer_Social_Vision/'
+PARENT_DIR = '/Users/irenefeng/Documents/Computer_Social_Vision/'
 CAFFE_DIR = PARENT_DIR + 'caffe/'
 
 if database == 'fer':

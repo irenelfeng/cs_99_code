@@ -18,8 +18,8 @@ def dPrime(hits, misses, fas, crs):
  
     # Return d', beta, c and Ad'
     out = {}
-    out['sens'] = hits/(fas + hit)
-    out['spec'] = crs/(miss + crs)
+    out['sens'] = hits/(fas + hits)
+    out['spec'] = crs/(misses + crs)
     out['d'] = Z(hitRate) - Z(faRate) # want a high d', this is just correct - bias
     out['beta'] = math.exp(Z(faRate)**2 - Z(hitRate)**2)/2
     out['c'] = (Z(hitRate) + Z(faRate))/2 # bias - high 

@@ -1,19 +1,19 @@
-function [ predY ] = MDL_predict( MDL, testX, s, o, halve, comps, f_mean) % need f_mean if doing principal components
+function [ predY ] = MDL_predict( MDL, testX, s, o, halve, foveated, comps, f_mean) % need f_mean if doing principal components
     
     predY = zeros(size(testX,1),1);
     features = [];
     % fill in predY based on features
     for i=1:size(testX,1)
-        features = [features; image_features(testX(i,:), s, o, halve)']; 
+        features = [features; image_features(testX(i,:), s, o, halve, foveated )']; 
     end
-    if nargin >= 6 || comps ~= 0
+    if nargin < 7 || comps == 0 
+        test_features = features;
+    else
         % now project the test points into space by multiplying the components by
         % the new points 
         % make sure that the new points are zero-meaned to the TRAINING set
         test_features = (features - repmat(f_mean, size(features, 1),1))*comps;
-    else
-        % no components
-        test_features = features;
+        
     end
     
     for i=1:size(testX,1)

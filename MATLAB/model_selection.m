@@ -7,13 +7,13 @@
 % si = number of sizes best fit
 % or = number of orientations best fit 
 % comps = PCA components reduced to
-function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, type, halve)
+function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, type, halve, foveated)
     if nargin < 5
         sizes = 1:3; 
         orientations = [4,8]; 
         N = 10;
-        comps = 0;
     end
+    comps = 0;
     
     rand('twister', 0);
     m = size(X,1);
@@ -28,7 +28,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
             % get features for X
             features = []; % oh no it's no longer grid size * 2. 
             for i=1:size(X,1)
-                features = [features; image_features(X(i,:), s, o, halve)']; % call image features 
+                features = [features; image_features(X(i,:), s, o, halve, foveated)']; % call image features 
             end
             
             errors = zeros(N, 1);
@@ -38,19 +38,34 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
                 % get indices for testing and training
                 test_idxes = idxperm(kth); % these are the indices of X and Y that serve to be test
                 train_idxes = idxperm(setdiff(1:m, kth));
+                testY = Y(test_idxes);
+                test_features = features(test_idxes, :); 
                 
+                pred_Y = zeros(size(testY));
                 trainX = features(train_idxes,:);
                 trainY = Y(train_idxes);
-                
-                % do PCA on these features 
-                pca_features = trainX; 
-                % comment if you don't want to do pca_features
-                [c, pca_features, resid] = bestPCA(trainX);
+                % I test by taking the test_features -
+                % mean(train) * comps, to get the new points in the new
+                % feature space... oh yeah. 
+                feat_mean = mean(trainX); 
                 
                 if (strcmp(type, 'LDA') == 1)
+                    % do PCA on these features 
+                    pca_features = trainX; 
+                    % comment below if you don't want to do pca_features
+                    [c, pca_features, resid] = bestPCA(trainX);
                     MDL = train_Mc_LDA(pca_features, trainY);
+                    
+                    test_features_pca = (test_features - repmat(feat_mean,size(test_features, 1), 1))*c;
+                    for i=1:length(pred_Y)
+                        pred_Y(i) = predict(MDL, test_features_pca(i,:));
+                    end
                 elseif (strcmp(type, 'SVM') == 1)
-                    MDL = train_Mc_SVM(pca_features, trainY);
+                    % don't do PCA with SVM, innstead Adaboost
+                    MDL = train_Mc_SVM(trainX, trainY); 
+                    for i=1:length(pred_Y)
+                        pred_Y(i) = predict(MDL, test_features(i,:));
+                    end
                 else 
                     disp('Sorry, model type not recognized');
                     MDL = 'error';
@@ -60,21 +75,6 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
                     return
                 end
                               
-                testY = Y(test_idxes);
-                test_features = features(test_idxes, :); % grid size * 2. 
-%                 % need to select the same number of features for pca
-                test_features_pca = test_features;
-                % I test by taking the test_features -
-                % mean(train) * comps, to get the new points in the new
-                % feature space... oh yeah. 
-                feat_mean = mean(trainX);
-                test_features_pca = (test_features - repmat(feat_mean,size(test_features, 1), 1))*c;
-
-                pred_Y = zeros(size(testY));
-                for i=1:length(pred_Y)
-                    pred_Y(i) = predict(MDL, test_features_pca(i,:));
-                end
-          
                 % error - overall misclassification rate.
                 sprintf('error calculated for run %d of sizes = %d, ors = %d', k, s, o)
                 errors(k+1) = sum(double(testY) - pred_Y ~= 0)/(length(pred_Y)); % counting how many don't == 0 (correct class)
@@ -97,17 +97,17 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
     or = orientations(mod(idx-1, length(orientations))+1);% get the orientations
     features = []; 
     for i=1:size(X,1)
-        features = [features ; image_features(X(i,:), si, or, halve)']; % call image features on each file 
+        features = [features ; image_features(X(i,:), si, or, halve, foveated)']; % call image features on each file 
     end
     
-    [comps,pca_features, resid] = bestPCA(features);
     %% retrain with these features
 
-    sprintf('%s sizes and %s orientations and reduced to %s PCA components', si, or, length(resid));
+    sprintf('%s sizes and %s orientations', si, or);
     if (strcmp(type, 'LDA') == 1)
+        [comps,pca_features, resid] = bestPCA(features);
         MDL = train_Mc_LDA(pca_features, Y);
     elseif (strcmp(type, 'SVM') == 1)
-        MDL = train_Mc_SVM(pca_features, Y);
+        MDL = train_Mc_SVM(features, Y);
     end 
        
 end
