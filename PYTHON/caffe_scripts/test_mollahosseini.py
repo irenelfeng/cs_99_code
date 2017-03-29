@@ -18,7 +18,12 @@ names = ['fd']
 # modes = ['inverted'] 
 # names = ['inverted'] 
 
-PARENT_DIR = '/Users/irenefeng/Documents/Computer_Social_Vision/'
+PARENT_DIR = sys.argv[1]
+name_of_front_file = sys.argv[3] 
+database = sys.argv[2] # val, ck, for now. fer meh
+# oh need to add the same val pictures that's in the matlab
+# '/Users/irenefeng/Documents/Computer_Social_Vision/'
+# for anthill: '/home/anthill/ifeng/'
 CAFFE_DIR = PARENT_DIR + 'caffe/'
 
 if database == 'fer':
@@ -67,10 +72,17 @@ elif database == 'val':
 	mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
     	(mean_blob.channels, mean_blob.height, mean_blob.width))
 	mean = mean_array.mean(1).mean(1)
+elif database='MATLAB':
+	# take those pictures and size them down. they're not in color. i don't think the reg db is in color either tho
+	IMAGE_DIR = PARENT_DIR + 'cohn-kanade-plus/cohn-kanade/for-molla/'
+	LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/120X.mat'
+	labels = sio.loadmat(LABELS_FILE)['Y']
+
+
 
 
 net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy_ft.prototxt', 1,
-								weights=CAFFE_DIR + 'models/mollahosseini_fer/training_snapshot_googlenet_quick_iter_100000.caffemodel')
+								weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/_iter_800000.caffemodel')
 
 # need to transform for some reason
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -94,7 +106,8 @@ for n in range(len(modes)):
 		#load the image in the data layer
 		if database == 'val':
 			im = caffe.io.load_image(IMAGE_DIR+'/'+i)
-			
+			# we are testing on inverted faces!! 
+			im = np.flipud(im)
 		else:
 			im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
 
@@ -118,13 +131,12 @@ for n in range(len(modes)):
 			print 'finished testing for image {0}'.format(i)
 
 	predictions = np.array(predictions)
-	print p 
-	
+
 	acc = (len(acc_set_conv) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(acc_set_conv)
 	print 'accuracy is {0}'.format(acc)
 
-	sio.savemat('mollahosseini_test_results_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
-	 			{'predY':predictions[0], 'testY':acc_set_conv[0]})
+	sio.savemat('own_training_1000000_inverted_test_results_noFER_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
+	 			{'predY':predictions, 'testY':acc_set_conv})
 
 # in matlab, then we can call confusion_matrix(predY, testY, stringpng, stringtitle)
 # for confusion matrix
