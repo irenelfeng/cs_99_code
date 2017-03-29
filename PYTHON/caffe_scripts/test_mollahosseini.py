@@ -30,12 +30,22 @@ if database == 'fer':
 	acc_set = labels[test_set[0] - 1:test_set[1] - 1]
 	to_molla = emotion_label_conversions.fer_to_molla() 
 	acc_set_conv = map(lambda x: to_molla[x], acc_set)
+	# meanR = 79
+	# meanG = 86
+	# meanB = 108
+	# mean = [meanR, meanG, meanB];
+
 elif database == 'ck': # cohn-kanade
 	IMAGE_DIR = PARENT_DIR + 'cohn-kanade-plus/cohn-kanade/for-molla/'
 	LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/CK_Y.mat'
 	labels = sio.loadmat(LABELS_FILE)['Y']
 	acc_set_conv = labels[0] # already in molla code oops 
 	test_set = ()
+	meanR = 79
+	meanG = 86
+	meanB = 108
+	mean = [meanR, meanG, meanB];
+
 elif database == 'val':
 	IMAGE_DIR = '/home/ifsdata/scratch/cooperlab/irene/CNN_48_images/val/'
 	LABELS_FILE = IMAGE_DIR + '../file_labels_val_no_space.txt'
@@ -51,21 +61,16 @@ elif database == 'val':
 	filenames = map(lambda x: x.split(' ')[0] , nonFER)
 
 	filenames = [x.split('/')[-1] for x in filenames]
+	mean_blob = caffe.io.caffe_pb2.BlobProto()
+	with open('/home/ironfs/scratch/cooperlab/irene/CNN_48_images/LMDB/40_mean.binaryproto') as f:
+    	mean_blob.ParseFromString(f.read())
+	mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
+    	(mean_blob.channels, mean_blob.height, mean_blob.width))
+	mean = mean_array.mean(1).mean(1)
 
-# meanR = 79
-# meanG = 86
-# meanB = 108
-# mean = [meanR, meanG, meanB];
-
-mean_blob = caffe.io.caffe_pb2.BlobProto()
-with open('/home/ironfs/scratch/cooperlab/irene/CNN_48_images/LMDB/40_mean.binaryproto') as f:
-    mean_blob.ParseFromString(f.read())
-mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
-    (mean_blob.channels, mean_blob.height, mean_blob.width))
-mean = mean_array.mean(1).mean(1)
 
 net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy_ft.prototxt', 1,
-								weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/ft__iter_1000000.caffemodel')
+								weights=CAFFE_DIR + 'models/mollahosseini_fer/training_snapshot_googlenet_quick_iter_100000.caffemodel')
 
 # need to transform for some reason
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -89,6 +94,7 @@ for n in range(len(modes)):
 		#load the image in the data layer
 		if database == 'val':
 			im = caffe.io.load_image(IMAGE_DIR+'/'+i)
+			
 		else:
 			im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
 
@@ -112,13 +118,12 @@ for n in range(len(modes)):
 			print 'finished testing for image {0}'.format(i)
 
 	predictions = np.array(predictions)
-	print p
-	print 
+	print p 
 	
 	acc = (len(acc_set_conv) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(acc_set_conv)
 	print 'accuracy is {0}'.format(acc)
 
-	sio.savemat('mollahosseini_test_results_noFER_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
+	sio.savemat('mollahosseini_test_results_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
 	 			{'predY':predictions[0], 'testY':acc_set_conv[0]})
 
 # in matlab, then we can call confusion_matrix(predY, testY, stringpng, stringtitle)
