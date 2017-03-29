@@ -65,7 +65,7 @@ mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
 mean = mean_array.mean(1).mean(1)
 
 net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy_ft.prototxt', 1,
-								weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/ft__iter_1000000.caffemodel')
+								weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/_iter_800000.caffemodel')
 
 # need to transform for some reason
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -89,6 +89,8 @@ for n in range(len(modes)):
 		#load the image in the data layer
 		if database == 'val':
 			im = caffe.io.load_image(IMAGE_DIR+'/'+i)
+			# we are testing on inverted faces!! 
+			im = np.flipud(im)
 		else:
 			im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
 
@@ -112,14 +114,12 @@ for n in range(len(modes)):
 			print 'finished testing for image {0}'.format(i)
 
 	predictions = np.array(predictions)
-	print p
-	print 
 	
 	acc = (len(acc_set_conv) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(acc_set_conv)
 	print 'accuracy is {0}'.format(acc)
 
-	sio.savemat('mollahosseini_test_results_noFER_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
-	 			{'predY':predictions[0], 'testY':acc_set_conv[0]})
+	sio.savemat('own_training_1000000_inverted_test_results_noFER_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
+	 			{'predY':predictions, 'testY':acc_set_conv})
 
 # in matlab, then we can call confusion_matrix(predY, testY, stringpng, stringtitle)
 # for confusion matrix
