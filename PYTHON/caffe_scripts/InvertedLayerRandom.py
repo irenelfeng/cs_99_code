@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 from random import randint
 import caffe
-from distortions import add_grid
 
 class InvertedLayerRandom(caffe.Layer):
 
