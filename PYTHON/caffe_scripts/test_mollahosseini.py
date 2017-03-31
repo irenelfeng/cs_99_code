@@ -6,7 +6,15 @@ import scipy.io as sio
 import sys 
 import os
 import lmdb
-sys.path.append(os.path.abspath('../helperfuncs'))
+
+PARENT_DIR = sys.argv[1]
+database = sys.argv[2] # val, ck, MATLAB, for now.
+# oh need to add the same val pictures that's in the matlab
+# '/Users/irenefeng/Documents/Computer_Social_Vision/'
+# for anthill: '/home/anthill/ifeng/cs99/'
+CAFFE_DIR = PARENT_DIR + 'caffe/'
+
+sys.path.append(os.path.abspath(PARENT_DIR+'/cs_99_code/PYTHON/helperfuncs'))
 import emotion_label_conversions
 
 database = 'val'
@@ -16,13 +24,6 @@ names = ['bottom']
 # names = ['whole,','flipped', 'top', 'bottom']
 # modes = ['inverted'] 
 # names = ['inverted'] 
-
-PARENT_DIR = sys.argv[1]
-database = sys.argv[2] # val, ck, MATLAB, for now.
-# oh need to add the same val pictures that's in the matlab
-# '/Users/irenefeng/Documents/Computer_Social_Vision/'
-# for anthill: '/home/anthill/ifeng/cs99/'
-CAFFE_DIR = PARENT_DIR + 'caffe/'
 
 if database == 'fer':
     #test_set = (28710, 32299) 
