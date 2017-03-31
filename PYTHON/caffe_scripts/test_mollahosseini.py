@@ -5,7 +5,7 @@ from PIL import Image
 import scipy.io as sio
 import sys 
 import os
-import lmdb
+import math
 
 PARENT_DIR = sys.argv[1]
 database = sys.argv[2] # val, ck, MATLAB, for now.
@@ -17,9 +17,10 @@ CAFFE_DIR = PARENT_DIR + 'caffe/'
 sys.path.append(os.path.abspath(PARENT_DIR+'/cs_99_code/PYTHON/helperfuncs'))
 import emotion_label_conversions
 
-database = 'val'
-modes = ['blurring_bottom']
-names = ['bottom']
+# modes = ['blurring_bottom', '']
+# names = ['bottom', '']
+modes = ['']
+names = ['']
 # face_detected as well. 
 # names = ['whole,','flipped', 'top', 'bottom']
 # modes = ['inverted'] 
@@ -66,27 +67,27 @@ elif database == 'val':
 
     filenames = [x.split('/')[-1] for x in filenames]
 
-
-elif database=='MATLAB':
-    # take those pictures and size them down. they're not in color.
-    # i don't think the reg db is in color either tho
+elif database == 'MATLAB':
+    test_set = ()
     LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/128Y.mat'
     labels = sio.loadmat(LABELS_FILE)['Y']
+    test = int(math.floor(9.0/10*len(labels)))
+    acc_set_conv = np.transpose(labels[test:]) 
 
 if database == 'val' or database == 'MATLAB':
     mean_blob = caffe.io.caffe_pb2.BlobProto()
-    # with open('/home/ironfs/scratch/cooperlab/irene/CNN_48_images/LMDB/40_mean.binaryproto') as f:
-    #     mean_blob.ParseFromString(f.read())
-    # mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
-    #     (mean_blob.channels, mean_blob.height, mean_blob.width))
-    # mean = mean_array.mean(1).mean(1)
-    mean = [79, 79, 79] # just for testing for now 
-
+    with open('/home/ironfs/scratch/cooperlab/irene/CNN_48_images/LMDB/40_mean.binaryproto') as f:
+        mean_blob.ParseFromString(f.read())
+    mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
+        (mean_blob.channels, mean_blob.height, mean_blob.width))
+    mean = mean_array.mean(1).mean(1)
+        # take those pictures and size them down. they're not in color.
+    # i don't think the reg db is in color either tho
 
 
 for n in range(len(modes)):
-    net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/train_val2_'+names[n]+'.prototxt', 1,
-    weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/blurring_' + modes[n] + '_iter_1000000.caffemodel')
+    net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy_ft.prototxt', 1, 
+        weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/' + modes[n] + '_iter_1000000.caffemodel')
 
     # need to transform for some reason
     transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -106,7 +107,7 @@ for n in range(len(modes)):
     else: 
         IMAGE_DIR = PARENT_DIR + 'cs_99_code/MATLAB/data/'+names[n]+'128X.mat'
         data = sio.loadmat(IMAGE_DIR)[names[n]+'X']
-        loop = range(0, len(data))
+        loop = range(test, len(data))
 
     for i in loop:  
 
@@ -119,8 +120,9 @@ for n in range(len(modes)):
         elif database == 'MATLAB':
             im = data[i].reshape((128,128))/255.0 # because needs [0,1] range not [0, 255]
             im = im[:, :, np.newaxis]
-            im = np.tile(img, (1, 1, 3)) # make it color 
-            im = np.resize(im, (48, 48)) # downsize 
+            im = np.tile(im, (1, 1, 3)) # make it color 
+            im = np.resize(im, (48, 48, 3)) # downsize 
+            # i don't know if this is working :(
 
         else:
             im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
@@ -133,8 +135,7 @@ for n in range(len(modes)):
             net.blobs['data'].data[j, ...] = transformer.preprocess('data', crops[j])
         
         out = net.forward()
-        print out 
-        # previous, out would be loss1/classifier
+        # previous, out would be loss1/classifier - i renamed it in the prototxt to be prob
         p = np.argmax(np.average(out['prob'], axis=0))
         # p = np.argmax(np.average(out['loss1/classifier'], axis=0))
         predictions.append(p)
@@ -144,11 +145,11 @@ for n in range(len(modes)):
             print 'finished testing for image {0}'.format(i)
 
     predictions = np.array(predictions)
-
+    acc_set_conv = np.array(acc_set_conv)
     acc = (len(acc_set_conv) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(acc_set_conv)
     print 'accuracy is {0}'.format(acc)
 
-    sio.savemat('bottom_blurred_training_{1}_{0}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
+    sio.savemat('network_results_{0}_{1}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
                 {'predY':predictions, 'testY':acc_set_conv})
 
 # in matlab, then we can call confusion_matrix(predY, testY, stringpng, stringtitle)
