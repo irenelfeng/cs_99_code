@@ -10,8 +10,8 @@ sys.path.append(os.path.abspath('../helperfuncs'))
 import emotion_label_conversions
 
 database = 'val'
-modes = ['bottom', 'top']
-names = ['bottom', 'top']
+modes = ['blurring_bottom']
+names = ['bottom']
 # face_detected as well. 
 # names = ['whole,','flipped', 'top', 'bottom']
 # modes = ['inverted'] 
@@ -85,7 +85,7 @@ if database == 'val' or database == 'MATLAB':
 
 
 for n in range(len(modes)):
-    net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/deploy_ft.prototxt', 1,
+    net = caffe.Net(CAFFE_DIR + 'models/mollahosseini_fer/train_val2_'+names[n]+'.prototxt', 1,
     weights=CAFFE_DIR + 'models/mollahosseini_fer/snapshots/blurring_' + modes[n] + '_iter_1000000.caffemodel')
 
     # need to transform for some reason
@@ -105,7 +105,7 @@ for n in range(len(modes)):
         loop = filenames
     else: 
         IMAGE_DIR = PARENT_DIR + 'cs_99_code/MATLAB/data/'+modes[0]+'128X.mat'
-        data = sio.loadmat(IMAGE_DIR)[modes[n]+'X']
+        data = sio.loadmat(IMAGE_DIR)[names[n]+'X']
         loop = range(0, len(data))
 
     for i in loop:  
