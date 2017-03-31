@@ -69,7 +69,6 @@ elif database == 'val':
 elif database=='MATLAB':
     # take those pictures and size them down. they're not in color.
     # i don't think the reg db is in color either tho
-    import cv2 
     LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/128Y.mat'
     labels = sio.loadmat(LABELS_FILE)['Y']
 
@@ -104,7 +103,7 @@ for n in range(len(modes)):
     elif database == 'val': 
         loop = filenames
     else: 
-        IMAGE_DIR = PARENT_DIR + 'cs_99_code/MATLAB/data/'+modes[0]+'128X.mat'
+        IMAGE_DIR = PARENT_DIR + 'cs_99_code/MATLAB/data/'+names[n]+'128X.mat'
         data = sio.loadmat(IMAGE_DIR)[names[n]+'X']
         loop = range(0, len(data))
 
@@ -117,7 +116,10 @@ for n in range(len(modes)):
             if modes[n] == 'inverted':
                 im = np.flipud(im)
         elif database == 'MATLAB':
-            im = data[i]
+            im = data[i].reshape((128,128))/255.0 # because needs [0,1] range not [0, 255]
+            im = im[:, :, np.newaxis]
+            im = np.tile(img, (1, 1, 3)) # make it color 
+            im = np.resize(im, (48, 48)) # downsize 
 
         else:
             im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
