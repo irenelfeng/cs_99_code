@@ -69,10 +69,16 @@ elif database == 'val':
     filenames = [x.split('/')[-1] for x in filenames]
 
 elif database == 'MATLAB':
-    test_set = ()
+    if 'anthill' in PARENT_DIR: 
+        IMAGE_DIR = '/home/ifsdata/scratch/cooperlab/irene/CNN_48_images/MATLAB_val/'
+    else: 
+        IMAGE_DIR = PARENT_DIR + 'CNN_48_images/MATLAB_val'
     LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/128Y.mat'
     labels = sio.loadmat(LABELS_FILE)['Y']
-    test = int(math.floor(9.5/10*len(labels)))
+    test = int(math.floor(9.0/10*len(labels)))
+
+    num_test = len(labels) - test
+    test_set = (1, num_test + 1) # matlab omg i will kill it 
     acc_set_conv = np.array(labels[test:])
     acc_set_conv = np.reshape(acc_set_conv, (len(acc_set_conv), )) # do not make it len, 1 but len, nothing for 1-D
 
@@ -107,25 +113,16 @@ for n in range(len(modes)):
     elif database == 'val': 
         loop = filenames
     else: 
-        IMAGE_DIR = PARENT_DIR + 'cs_99_code/MATLAB/data/'+names[n]+'128X.mat'
-        data = sio.loadmat(IMAGE_DIR)[names[n]+'X']
-        loop = range(test, len(data))
+        loop = map(lambda x: '{0}.jpg'.format(x), range(test_set[0], test_set[1]))
 
     for i in loop:  
 
         #load the image in the data layer
-        if database == 'val':
+        if database == 'val' or database == 'MATLAB':
             im = caffe.io.load_image(IMAGE_DIR+'/'+i)
             # comment if we are testing on inverted faces!! 
             if modes[n] == 'inverted':
                 im = np.flipud(im)
-        elif database == 'MATLAB':
-            im = data[i].reshape((128,128))/255.0 # because needs [0,1] range not [0, 255]
-            im = smisc.imresize(im, (48, 48)) 
-            # NUMPY RESIZE DOES NOT WORK FOR SOME REASON
-            im = im[:, :, np.newaxis]
-            im = np.tile(im, (1, 1, 3)) # make it color 
-            
         else:
             im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
         # generate crops 
