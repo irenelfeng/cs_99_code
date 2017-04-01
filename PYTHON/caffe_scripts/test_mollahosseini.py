@@ -6,6 +6,7 @@ import scipy.io as sio
 import sys 
 import os
 import math
+import scipy.misc as smisc
 
 PARENT_DIR = sys.argv[1]
 database = sys.argv[2] # val, ck, MATLAB, for now.
@@ -41,7 +42,7 @@ if database == 'fer':
     # mean = [meanR, meanG, meanB];
 
 elif database == 'ck': # cohn-kanade
-    IMAGE_DIR = PARENT_DIR + 'cohn-kanade-plus/cohn-kanade/for-molla/'
+    IMAGE_DIR = PARENT_DIR + 'cohn-kanade-plus/cohn-kanade/for-molla/face_detected'
     LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/CK_Y.mat'
     labels = sio.loadmat(LABELS_FILE)['Y']
     acc_set_conv = labels[0] # already in molla code oops 
@@ -71,8 +72,9 @@ elif database == 'MATLAB':
     test_set = ()
     LABELS_FILE = PARENT_DIR + 'cs_99_code/MATLAB/data/128Y.mat'
     labels = sio.loadmat(LABELS_FILE)['Y']
-    test = int(math.floor(9.0/10*len(labels)))
-    acc_set_conv = np.transpose(labels[test:]) 
+    test = int(math.floor(9.5/10*len(labels)))
+    acc_set_conv = np.array(labels[test:])
+    acc_set_conv = np.reshape(acc_set_conv, (len(acc_set_conv), )) # do not make it len, 1 but len, nothing for 1-D
 
 if database == 'val' or database == 'MATLAB':
     mean_blob = caffe.io.caffe_pb2.BlobProto()
@@ -119,11 +121,11 @@ for n in range(len(modes)):
                 im = np.flipud(im)
         elif database == 'MATLAB':
             im = data[i].reshape((128,128))/255.0 # because needs [0,1] range not [0, 255]
+            im = smisc.imresize(im, (48, 48)) 
+            # NUMPY RESIZE DOES NOT WORK FOR SOME REASON
             im = im[:, :, np.newaxis]
             im = np.tile(im, (1, 1, 3)) # make it color 
-            im = np.resize(im, (48, 48, 3)) # downsize 
-            # i don't know if this is working :(
-
+            
         else:
             im = caffe.io.load_image(IMAGE_DIR+'/'+modes[n]+'/'+i)
         # generate crops 
@@ -145,10 +147,8 @@ for n in range(len(modes)):
             print 'finished testing for image {0}'.format(i)
 
     predictions = np.array(predictions)
-    acc_set_conv = np.array(acc_set_conv)
-    acc = (len(acc_set_conv) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(acc_set_conv)
-    print 'accuracy is {0}'.format(acc)
-
+    acc = (len(predictions) - np.count_nonzero(acc_set_conv - predictions)) * 1.0 / len(predictions)
+    print acc
     sio.savemat('network_results_{0}_{1}'.format(names[n], database, '_'.join(map(lambda x: str(x), test_set))),
                 {'predY':predictions, 'testY':acc_set_conv})
 
