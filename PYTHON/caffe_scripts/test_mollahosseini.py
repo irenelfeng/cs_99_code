@@ -20,8 +20,8 @@ import emotion_label_conversions
 
 # modes = ['blurring_bottom', '']
 # names = ['bottom', '']
-modes = ['']
-names = ['']
+modes = ['blurring_bottom']
+names = ['bottom']
 # face_detected as well. 
 # names = ['whole,','flipped', 'top', 'bottom']
 # modes = ['inverted'] 
@@ -53,8 +53,8 @@ elif database == 'ck': # cohn-kanade
     mean = [meanR, meanG, meanB];
 
 elif database == 'val':
-    IMAGE_DIR = '/home/ifsdata/scratch/cooperlab/irene/CNN_48_images/val/'
-    LABELS_FILE = IMAGE_DIR + '../file_labels_val_no_space.txt'
+    LMDB_DIR = '/home/ifsdata/scratch/cooperlab/irene/CNN_48_images/'
+    LABELS_FILE = LMDB_DIR + 'file_labels_val_no_space.txt'
     # acc_set_conv = np.loadtxt(open(LABELS_FILE,"rb"),delimiter=" ",usecols=[1])
 
     test_set = ()
@@ -110,7 +110,8 @@ for n in range(len(modes)):
         loop = map(lambda x: '{0}.png'.format(x), range(test_set[0], test_set[1]))
     elif database == 'ck': # ck - didn't do the formatting too right
         loop = sorted(os.listdir(IMAGE_DIR+'/'+modes[n]))
-    elif database == 'val': 
+    elif database == 'val':
+        IMAGE_DIR = LMDB_DIR + '/' + names[n]
         loop = filenames
     else: 
         loop = map(lambda x: '{0}.jpg'.format(x), range(test_set[0], test_set[1]))
