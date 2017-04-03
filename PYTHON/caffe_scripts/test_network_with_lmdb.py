@@ -46,7 +46,7 @@ for key, value in lmdb_cursor:
     image = image.astype(np.uint8)
     # change channels from 3, 48, 48 to 48, 48, 3
     image = np.swapaxes(image, 2, 0)
-    image = np.swapaxes(image, 0, 1)
+    # image = np.swapaxes(image, 0, 1) i don't think this is right actually
     crops = caffe.io.oversample([image], (40, 40))
         # uncomment if not using crops 
         #net.blobs['data'].reshape(1,3,120,120) 
@@ -63,5 +63,5 @@ for key, value in lmdb_cursor:
 acc = (len(predictions) - np.count_nonzero(np.array(values) - np.array(predictions))) * 1.0 / len(predictions)
 print acc
 sio.savemat('network_results_{0}_val'.format(which_val),
-                {'predY':predictions, 'testY':acc_set_conv})
+                {'predY':predictions, 'testY':values})
     
