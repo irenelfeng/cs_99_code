@@ -2,8 +2,8 @@
 % calls model_selection.m, confusion_matrix.m
 % change this line from LDA to SVM
 type = 'SVM';
-mode = 'bottom'; % whole, top, bottom, local, global, blurred_top_, blurred_bottom_.
-foveated = 1;
+mode = 'whole'; % whole, top, bottom, local, global, blurred_top, blurred_bottom_.
+foveated = 0; % 1 or 0
 % gets date 
 d = date; 
 
@@ -28,9 +28,9 @@ testY = double(Y(train+1:size(X,1)));
 
 
 % comment next 1 and then uncomment next two if you want to specify
-% [MDL, s, o, comps] = model_selection(trainX, trainY, [3:5], 8, 5, type, mode, foveated);
-s = 5;
-o = 8;
+[MDL, s, o, comps] = model_selection(trainX, trainY, [2:4], 6, 5, type, mode, foveated);
+% s = 5;
+% o = 8;
 features = [];
 for i=1:size(trainX,1)
     features = [features; image_features(trainX(i,:), s, o, mode, foveated)']; % call image features 
@@ -50,11 +50,12 @@ else
 end
 
 if foveated == 1
-    save(sprintf('MDL_foveated_%s_%s_nonFERss%do%d', mode, type, s, o), 'MDL');
+    save(sprintf('MDL_foveated_%s_%s_nonFERs%do%d', mode, type, s, o), 'MDL');
     confusion_matrix(predY, testY, sprintf('confusion%sTrainedFoveatedNonFER%s-s%d-o%d.fig', mode, type, s, o), ...
                 sprintf('Confusion %sTrained Foveated NonFER%s-s%d-o%d', mode, type, s, o));
+    
 else
-    save(sprintf('MDL_%s_%s_nonFERss%do%d', mode, type, s, o), 'MDL');
+    save(sprintf('MDL_%s_%s_nonFERs%do%d', mode, type, s, o), 'MDL');
     confusion_matrix(predY, testY, sprintf('confusion%sTrainedNonFER%s-s%d-o%d.fig', mode, type, s, o), ...
                sprintf('Confusion %sTrained NonFER%s-s%d-o%d', mode, type, s, o));
 end
