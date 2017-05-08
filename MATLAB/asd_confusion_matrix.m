@@ -14,7 +14,7 @@ Conf_mat = confusionmat(reorder_alphabetical_answers(testY), reorder_alphabetica
     end
     
 labels = {'Angry','Disgust','Sad', 'Fear', 'Surprise','Neutral', 'Happy'}; 
-graph = heatmap(Percent_Conf_mat, labels, labels, 1, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true);
+graph = heatmap(Percent_Conf_mat, labels, labels, 1, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true, 'FontSize', 15);
 title('Dartmouth Confusion TD Results');
 xlabel('Output Class'); ylabel('Target Class');
 
@@ -53,7 +53,7 @@ reordered_ASD_Eack = temp(:, [1 5 2 4 3]);
 temp = TD_Eack([1 5 2 4 3 ], :); 
 reordered_TD_Eack = temp(:, [1 5 2 4 3]);
 labels = {'Angry','Sad','Fear','Neutral', 'Happy'}; 
-graph = heatmap(reordered_ASD_Eack-reordered_TD_Eack, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1);
+graph = heatmap(reordered_ASD_Eack-reordered_TD_Eack, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1, 'FontSize', 15);
 title('Eack ASD-TD Results');
 xlabel('Output Class'); ylabel('Target Class');
 %Wbach (haven't manually transposed this one so i do it here) 
@@ -77,12 +77,13 @@ TD_Wbach = [88	15	0	0	1	1	0	1	0	0;
 5	1	0	0	3	0	0	49	6	2;
 0	0	0	1	0	1	0	13	85	0;
 0	0	0	3	0	0	0	2	1	70;]';
+figure;
 temp = ASD_Wbach([1 2 6 3 7 5 4], :); 
 reordered_ASD_Wbach = temp(:, [1 2 6 3 7 5 4]);
 temp = TD_Wbach([1 2 6 3 7 5 4], :); 
 reordered_TD_Wbach = temp(:, [1 2 6 3 7 5 4]);
 labels = {'Angry','Disgust','Sad','Fear','Surprise','Neutral','Happy'}; 
-graph = heatmap(reordered_ASD_Wbach-reordered_TD_Wbach, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1);
+graph = heatmap(reordered_ASD_Wbach-reordered_TD_Wbach, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1, 'FontSize', 15);
 title('Wingenbach ASD-TD Results');
 xlabel('Output Class'); ylabel('Target Class');
 
@@ -106,7 +107,7 @@ reordered_ASD_Philip = temp(:, [1 2 5 3 4]);
 temp = TD_Philip([1 2 5 3 4 ], :); 
 reordered_TD_Philip = temp(:, [1 2 5 3 4]);
 labels = {'Angry','Disgust','Sad','Fear', 'Happy'}; 
-graph = heatmap(reordered_ASD_Philip-reordered_TD_Philip, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1);
+graph = heatmap(reordered_ASD_Philip-reordered_TD_Philip, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1,'FontSize', 15);
 title('Philip ASD-TD Results');
 xlabel('Output Class'); ylabel('Target Class');
 % Weighted Aggregate Conf.
@@ -169,7 +170,7 @@ Perc_Total_TD = Total_TD ./ repmat(sum(Total_TD, 2), 1, 7);
 figure;
 ASD_TD_TOTAL = makeDiffConfMat(Perc_Total_ASD, Perc_Total_TD); 
 labels = {'Angry','Disgust','Sad', 'Fear', 'Surprise','Neutral', 'Happy'}; 
-graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'FontSize', 15, 'Colormap', 'money');
+graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'FontSize', 15, 'Colormap', 'money', 'FontSize', 15);
 title(sprintf('Total ASD-TD Confusions (%d studies)', length(Weights_TD)));
 xlabel('Output Class'); ylabel('Target Class');
 
