@@ -13,6 +13,14 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
         orientations = [4,8]; 
         N = 10;
     end
+    if nargin < 6
+        type = 'LDA';
+    end
+    if nargin < 7
+        halve = 0;
+        foveated = 0;
+    end
+    
     comps = 0;
     
     rand('twister', 0);
@@ -87,9 +95,7 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
             count = count+1; 
         end
     end
-    
     % get the index with smallest error 
-    plot(1:length(error), error);
     error
     %% reget gabor-jet features with least error: 
     [m,idx] = min(error);
