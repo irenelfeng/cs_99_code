@@ -10,8 +10,8 @@ function confusion_matrix(predY, testY, filename, titlee)
             Percent_Conf_mat(i,:) = Conf_mat(i,:)./sum(Conf_mat(i,:))*100; %sum across row: as in output class
         end
     end
-    % keep fer. i like it. 
-    labels = {'Anger','Disgust','Sad', 'Fear', 'Surprise', 'Neutral', 'Happy'}; 
+    % keep in terms of valence. i like it. 
+    labels = {'Anger','Disgust','Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'}; 
     graph = heatmap(Percent_Conf_mat, labels, labels, 1,'FontSize', 15, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true);
     xlabel('Output Class'); ylabel('Target Class');
     set(gca,'fontsize',14);

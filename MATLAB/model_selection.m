@@ -71,8 +71,17 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
                         pred_Y(i) = predict(MDL, test_features_pca(i,:));
                     end
                 elseif (strcmp(type, 'SVM') == 1)
-                    % don't do PCA with SVM, innstead Adaboost
-                    MDL = train_Mc_SVM(trainX, trainY); 
+                    disp('SVM');
+                    pca_features = trainX; 
+                    % comment below if you don't want to do pca_features
+                    [c, pca_features, resid] = bestPCA(trainX);
+                    MDL = train_Mc_SVM(pca_features, trainY); 
+                    test_features_pca = (test_features - repmat(feat_mean,size(test_features, 1), 1))*c;
+                    for i=1:length(pred_Y)
+                        pred_Y(i) = predict(MDL, test_features_pca(i,:));
+                    end
+                elseif (strcmp(type, 'Ada') == 1)
+                    MDL = train_Ada(trainX, trainY); 
                     for i=1:length(pred_Y)
                         pred_Y(i) = predict(MDL, test_features(i,:));
                     end
@@ -115,7 +124,10 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
         [comps,pca_features, resid] = bestPCA(features);
         MDL = train_Mc_LDA(pca_features, Y);
     elseif (strcmp(type, 'SVM') == 1)
-        MDL = train_Mc_SVM(features, Y);
+        [comps,pca_features, resid] = bestPCA(features);
+        MDL = train_Mc_SVM(pca_features, Y);
+    elseif (strcmp(type, 'Ada') == 1)
+        MDL = train_Ada(features, Y);
     end 
        
 end

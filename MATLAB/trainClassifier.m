@@ -35,30 +35,36 @@ features = [];
 for i=1:size(trainX,1)
     features = [features; image_features(trainX(i,:), s, o, mode, foveated)']; % call image features 
 end 
-% FOR LDA/PCA: also uncomment below lines if you want to specify comps. ran this. super similar 
-if strcmp(type, 'LDA') == 1 
-    if cross_val == 0
-        sprintf('not doing cross validation')
-        [comps, points, resid] = bestPCA(features); 
-        % [comps, points, resid] = pca(features); 
-        % or just regular pca if you know how many
-
-        MDL = train_Mc_LDA(points,trainY);
-    end
-    predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps, mean(features));
-else 
-    if cross_val == 0
-        sprintf('not doing cross validation')
-        MDL = train_Mc_SVM(features,trainY);
-    end
+if strcmp(type, 'ADA') == 1
+    % no PCA for adaboost
+    MDL = train_Ada(features,trainY);
     predY = MDL_predict(MDL, testX, s, o, mode, foveated);
-end
+else 
+    % FOR LDA/PCA: also uncomment below lines if you want to specify comps. ran this. super similar 
+    if strcmp(type, 'LDA') == 1 
+        if cross_val == 0
+            sprintf('not doing cross validation')
+            [comps, points, resid] = bestPCA(features); 
+            % [comps, points, resid] = pca(features); 
+            % or just regular pca if you know how many
 
+            MDL = train_Mc_LDA(points,trainY);
+        end
+        predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps, mean(features));
+    else 
+        if cross_val == 0
+            sprintf('not doing cross validation')
+            MDL = train_Mc_SVM(features,trainY);
+        end
+        predY = MDL_predict(MDL, testX, s, o, mode, foveated);
+    end
+end
 if foveated == 1
     save(sprintf('MDLcomps_foveated_%s_nonFERs%ss%do%d', mode, type, s, o), 'comps');
     save(sprintf('MDL_foveated_%s_%s_nonFERss%do%d', mode, type, s, o), 'MDL');
     confusion_matrix(predY, testY, sprintf('confusion%sTrainedFoveatedNonFER%s-s%d-o%d.fig', mode, type, s, o), ...
                 sprintf('Confusion %sTrained Foveated NonFER%s-s%d-o%d', mode, type, s, o));
+    
 else
     save(sprintf('MDLcomps_%s_nonFERs%ss%do%d', mode, type, s, o), 'comps');
     save(sprintf('MDL_%s_%s_nonFERss%do%d', mode, type, s, o), 'MDL');
