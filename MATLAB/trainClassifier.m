@@ -1,9 +1,9 @@
 % given X, Y, returns model and confusion matrix 
 % calls model_selection.m, confusion_matrix.m
 % change this line from LDA to SVM
-type = 'SVM';
-mode = 'whole'; % whole, top, bottom, local, global, blurred_top, blurred_bottom_.
-foveated = 0; % 1 or 0
+type = 'LDA';
+mode = 'whole'; % whole, top, bottom, local, global, blurred_top, blurred_bottom.
+foveated = 0; % 0 or 1
 % gets date 
 d = date; 
 
@@ -26,16 +26,17 @@ trainY = Y(1:train);
 testX = X(train+1:size(X,1), :);
 testY = double(Y(train+1:size(X,1)));
 
-% comment next 1 and then uncomment next two if you want to specify
-[MDL, s, o, comps] = model_selection(trainX, trainY, 3:5, [6 8], 5, type, mode, foveated);
-% s = 5;
+% comment next 1 and then uncomment next two if you want to forego cross-validation
+[MDL, s, o, comps] = model_selection(trainX, trainY, [2:4], 8, 5, type, mode, foveated);
+
+% s = 3;
 % o = 8;
 
 features = [];
 for i=1:size(trainX,1)
     features = [features; image_features(trainX(i,:), s, o, mode, foveated)']; % call image features 
 end 
-% FOR LDA/PCA: also uncomment below lines if you want to specify comps. ran this. super similar 
+% FOR LDA/PCA: also uncomment below lines if you want to specify comps. 
 if strcmp(type, 'ADA') == 1
     % no PCA for adaboost
     MDL = train_Ada(features,trainY);
@@ -43,11 +44,13 @@ if strcmp(type, 'ADA') == 1
 else 
     [comps, points, resid] = bestPCA(features); 
     if strcmp(type, 'LDA') == 1 
-         MDL = train_Mc_SVM(points,trainY);
+        MDL = train_Mc_LDA(points,trainY);
     else
         MDL = train_Mc_SVM(points,trainY);
     end
-    predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps(:,1:159), mean(features));
+    predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps, mean(features));
+    % or just regular pca if you know how many
+    
     f = '';
     if foveated == 1
         f = '_foveated';

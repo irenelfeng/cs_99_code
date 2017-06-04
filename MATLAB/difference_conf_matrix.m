@@ -20,8 +20,8 @@ for i=1:size(Conf_mat,1)
 
     Percent_Conf_mat(i,:) = (z1 - z2) * 100;
 end
-    % expecting mollahosseini code
-    labels = {'Angry','Disgust','Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'}; 
+    % changed to valence
+    labels = {'Anger','Disgust','Sad', 'Fear', 'Surprise', 'Neutral', 'Happy'}; 
     graph = heatmap(Percent_Conf_mat, labels, labels, 1,'FontSize', 15, 'Colormap', 'money','ShowAllTicks',1);
     xlabel('Output Class'); ylabel('Target Class');
     title(titlee);

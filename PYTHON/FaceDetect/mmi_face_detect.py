@@ -23,17 +23,19 @@ frontRight = ['S001', 'S002', 'S017'];
 for root, dirs, files in os.walk(directory):
     for file in files: 
         if '.png' in file and 'face_detected' not in root:
-            image = cv2.imread(root+'/'+file, 0) # autoconverts to grayscale
-            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            image = cv2.imread(root+'/'+file) # autoconverts to grayscale
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             # Detect faces in the image
             SUBJECT = file.split('-')[0]
             if file.split('-')[0] == 'S021':
-                image = np.rot90(image) # rotate left once, stupid
+                image = np.rot90(image)
+                gray = np.rot90(gray) # rotate left once, stupid
             elif SUBJECT in rotateLeft3: 
-                image = np.rot90(image,3) # rotate left 3 times, as in righht
+                image = np.rot90(image,3)
+                gray = np.rot90(gray,3) # rotate left 3 times, as in righht
 
             faces = faceCascade.detectMultiScale(
-                image,
+                gray,
                 scaleFactor=1.01,
                 minNeighbors=5,
                 minSize=(180, 180), # (30,30) for FER images 
@@ -65,7 +67,7 @@ for root, dirs, files in os.walk(directory):
             # crops the image at this rectangle 
             (x, y, w, h) = faces[0]
             # why is the image still not saved as rotated? o.o
-            crop_img = image[y:y+h, x:x+w] # Crop from x, y, w, h 
+            crop_img = image[y:y+h, x:x+w, :] # Crop from x, y, w, h 
             # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
             # scales crop to be square, i guess the closest square <= area 
             s = int(round(math.sqrt(w*h)))
@@ -73,4 +75,3 @@ for root, dirs, files in os.walk(directory):
             parts = root.split('/')
             flat = '/'.join(parts[:len(parts)-1]) 
             m = cv2.imwrite(flat + '/face_detected/'+parts[-1]+'_'+file, square)
-            print m

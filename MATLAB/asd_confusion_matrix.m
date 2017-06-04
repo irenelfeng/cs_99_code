@@ -1,9 +1,9 @@
 % create matrices
 function [Total_TD, Total_ASD] = asd_confusion_matrix
 figure;
-addpath('helperfuncs')
-load('/Users/irenefeng/Documents/Computer_Social_Vision/cs_99_code/PYTHON/helperfuncs/dartmouthTDResults.mat');
-Conf_mat = confusionmat(testY, predY); % target across Y-axis, response across X-axis
+addpath('helperfuncs');
+load('../PYTHON/helperfuncs/dartmouthTDResults.mat'); 
+Conf_mat = confusionmat(reorder_alphabetical_answers(testY), reorder_alphabetical_answers(predY)); % target across Y-axis, response across X-axis
     Percent_Conf_mat = zeros(size(Conf_mat));
     for i=1:size(Conf_mat,1)
         if(sum(Conf_mat(i,:)) == 0)
@@ -13,14 +13,26 @@ Conf_mat = confusionmat(testY, predY); % target across Y-axis, response across X
         end
     end
     
-    % molla labels
-    labels = {'Angry','Disgust','Fear', 'Happy', 'Neutral','Sad', 'Surprise'}; 
-    graph = heatmap(Percent_Conf_mat, labels, labels, 1, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true);
-    title('Dartmouth Confusion TD Results');
+labels = {'Angry','Disgust','Sad', 'Fear', 'Surprise','Neutral', 'Happy'}; 
+graph = heatmap(Percent_Conf_mat, labels, labels, 1, 'Colormap', 'red','ShowAllTicks',1,'UseLogColorMap',true, 'FontSize', 15);
+title('Dartmouth Confusion TD Results');
+xlabel('Output Class'); ylabel('Target Class');
+
+
 % Wallace
 ASD_Wallace = [62,20,5,0,4,7,2;18,72,2,1,2,4,1;17,6,62,1,2,2,10;0,1,0,93,2,0,4;7,1,3,1,77,6,3;7,5,6,0,12,68,2;2,1,22,3,3,1,68];
 TD_Wallace = [73,10,6,0,3,5,3;11,88,0,0,0,0,1;1,1,85,0,1,2,10;0,0,0,99,0,0,1;2,0,0,3,89,6,0;1,0,3,0,5,86,5;0,0,13,0,2,1,84];
-Percent_Wallace_Conf = makeDiffConfMat(ASD_Wallace,TD_Wallace);
+% changed from alphabetical to valence-order: actually a pain. 
+temp = ASD_Wallace([1 2 6 3 7 5 4], :); 
+reordered_ASD_Wallace = temp(:, [1 2 6 3 7 5 4]);
+temp = TD_Wallace([1 2 6 3 7 5 4], :); 
+reordered_TD_Wallace = temp(:, [1 2 6 3 7 5 4]);
+Percent_Wallace_Conf = makeDiffConfMat(reordered_ASD_Wallace,reordered_TD_Wallace);
+figure; 
+labels = {'Angry','Disgust','Sad', 'Fear', 'Surprise','Neutral', 'Happy'}; 
+graph = heatmap(Percent_Wallace_Conf, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1);
+title('Wallace ASD-TD Results');
+xlabel('Output Class'); ylabel('Target Class');
 
 % Eack (transposed remember) no disgust or surprise
 ASD_Eack = [60.83, 10.28, 2.78, 11.67, 14.44; 
@@ -35,7 +47,15 @@ TD_Eack = [65.42, 11.25, 2.92, 11.25, 9.17;
             1.67, 0, 2.50, 88.75, 7.08;
             4.58, 1.25, .83, 6.67, 86.67;
             ];
-
+figure; 
+temp = ASD_Eack([1 5 2 4 3], :); 
+reordered_ASD_Eack = temp(:, [1 5 2 4 3]);
+temp = TD_Eack([1 5 2 4 3 ], :); 
+reordered_TD_Eack = temp(:, [1 5 2 4 3]);
+labels = {'Angry','Sad','Fear','Neutral', 'Happy'}; 
+graph = heatmap(reordered_ASD_Eack-reordered_TD_Eack, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1, 'FontSize', 15);
+title('Eack ASD-TD Results');
+xlabel('Output Class'); ylabel('Target Class');
 %Wbach (haven't manually transposed this one so i do it here) 
 ASD_Wbach = [73	20	1	0	1	1	0	0	0	0;
 4	76	8	1	0	3	1	1	1	0;
@@ -57,6 +77,16 @@ TD_Wbach = [88	15	0	0	1	1	0	1	0	0;
 5	1	0	0	3	0	0	49	6	2;
 0	0	0	1	0	1	0	13	85	0;
 0	0	0	3	0	0	0	2	1	70;]';
+figure;
+temp = ASD_Wbach([1 2 6 3 7 5 4], :); 
+reordered_ASD_Wbach = temp(:, [1 2 6 3 7 5 4]);
+temp = TD_Wbach([1 2 6 3 7 5 4], :); 
+reordered_TD_Wbach = temp(:, [1 2 6 3 7 5 4]);
+labels = {'Angry','Disgust','Sad','Fear','Surprise','Neutral','Happy'}; 
+graph = heatmap(reordered_ASD_Wbach-reordered_TD_Wbach, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1, 'FontSize', 15);
+title('Wingenbach ASD-TD Results');
+xlabel('Output Class'); ylabel('Target Class');
+
 % no surprise or neutral
 ASD_Philip = [ 65 25 5 0 6; 
     16 73 6 2 3;
@@ -68,42 +98,50 @@ TD_Philip = [
     85 12 1 0 2 ;
     7 91 2 0 0;
     1 12 87 0 1;
-    0 0 0 1 0 ;
+    0 0 0 100 0 ;
     0 1 4 0 95;
     ];
-
+figure; 
+temp = ASD_Philip([1 2 5 3 4], :); 
+reordered_ASD_Philip = temp(:, [1 2 5 3 4]);
+temp = TD_Philip([1 2 5 3 4 ], :); 
+reordered_TD_Philip = temp(:, [1 2 5 3 4]);
+labels = {'Angry','Disgust','Sad','Fear', 'Happy'}; 
+graph = heatmap(reordered_ASD_Philip-reordered_TD_Philip, labels, labels, 1, 'Colormap', 'money','ShowAllTicks',1,'FontSize', 15);
+title('Philip ASD-TD Results');
+xlabel('Output Class'); ylabel('Target Class');
 % Weighted Aggregate Conf.
 % wallace, eack, wbach, philip.
 Weights_TD = [208, 240, 144, 161];
 
 Weights_ASD = [208, 360, 144, 161];
 Total_TD = zeros(size(7,7));
-% to make the larger philip matrices
-% makes ones to stay neutral?? 
-TD_Philip = [TD_Philip(1:4,:); zeros(1,5); TD_Philip(5,:); zeros(1,5);];
-TD_Philip = [TD_Philip(:,1:4) zeros(7,1) TD_Philip(:,5) zeros(7,1)];
-ASD_Philip = [ASD_Philip(1:4,:); zeros(1,5); ASD_Philip(5,:); zeros(1,5);];
-ASD_Philip = [ASD_Philip(:,1:4) zeros(7,1) ASD_Philip(:,5) zeros(7,1)];
+% to expand matrix to 7x7
+% create zeros for emotions not tested
+reordered_TD_Philip = [reordered_TD_Philip(1:4,:); zeros(2,5); reordered_TD_Philip(5,:);];
+reordered_TD_Philip = [reordered_TD_Philip(:,1:4) zeros(7,2) reordered_TD_Philip(:,5)]; 
+reordered_ASD_Philip = [reordered_ASD_Philip(1:4,:); zeros(2,5); reordered_ASD_Philip(5,:)];
+reordered_ASD_Philip = [reordered_ASD_Philip(:,1:4) zeros(7,2) reordered_ASD_Philip(:,5)];
 
-% add rows
-TD_Eack = [TD_Eack(1,:); zeros(1,5); TD_Eack(2:5,:); zeros(1,5);];
+% expand matrix to 7x7 - disgust and neutral
+reordered_TD_Eack = [reordered_TD_Eack(1,:); zeros(1,5); reordered_TD_Eack(2:4,:); zeros(1,5); reordered_TD_Eack(5,:);];
 % add columns
-TD_Eack = [TD_Eack(:,1) zeros(7,1) TD_Eack(:,2:5) zeros(7,1)];
-ASD_Eack = [ASD_Eack(1,:); zeros(1,5); ASD_Eack(2:5,:); zeros(1,5);];
-ASD_Eack = [ASD_Eack(:,1) zeros(7,1) ASD_Eack(:,2:5) zeros(7,1)];
+reordered_TD_Eack = [reordered_TD_Eack(:,1) zeros(7,1) reordered_TD_Eack(:,2:4) zeros(7,1) reordered_TD_Eack(:,5)];
+reordered_ASD_Eack = [reordered_ASD_Eack(1,:); zeros(1,5); reordered_ASD_Eack(2:4,:); zeros(1,5); reordered_ASD_Eack(5,:)];
+reordered_ASD_Eack = [reordered_ASD_Eack(:,1) zeros(7,1) reordered_ASD_Eack(:,2:4) zeros(7,1) reordered_ASD_Eack(:,5)];
 
 % dartmouth conf in actual numbers already
 ASD_Matrices = zeros(7,7, length(Weights_TD));
 TD_Matrices = zeros(7,7, length(Weights_TD));
-ASD_Matrices(:,:,1) = ASD_Wallace;
-ASD_Matrices(:,:,2) = ASD_Eack;
-ASD_Matrices(:,:,3) = ASD_Wbach(1:7, 1:7);
-ASD_Matrices(:,:,4) = ASD_Philip;
+ASD_Matrices(:,:,1) = reordered_ASD_Wallace;
+ASD_Matrices(:,:,2) = reordered_ASD_Eack;
+ASD_Matrices(:,:,3) = reordered_ASD_Wbach;
+ASD_Matrices(:,:,4) = reordered_ASD_Philip;
 
-TD_Matrices(:,:,1) = TD_Wallace;
-TD_Matrices(:,:,2) = TD_Eack;
-TD_Matrices(:,:,3) = TD_Wbach(1:7, 1:7);
-TD_Matrices(:,:,4) = TD_Philip;
+TD_Matrices(:,:,1) = reordered_TD_Wallace;
+TD_Matrices(:,:,2) = reordered_TD_Eack;
+TD_Matrices(:,:,3) = reordered_TD_Wbach(1:7, 1:7);
+TD_Matrices(:,:,4) = reordered_TD_Philip;
 
 % multiply each cell by weights. 
 Total_TD =  zeros(size(Conf_mat));
@@ -129,8 +167,10 @@ end
 Perc_Total_ASD = Total_ASD ./ repmat(sum(Total_ASD, 2), 1, 7);
 Perc_Total_TD = Total_TD ./ repmat(sum(Total_TD, 2), 1, 7);
 
+figure;
 ASD_TD_TOTAL = makeDiffConfMat(Perc_Total_ASD, Perc_Total_TD); 
-graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'FontSize', 15, 'Colormap', 'money');
+labels = {'Angry','Disgust','Sad', 'Fear', 'Surprise','Neutral', 'Happy'}; 
+graph = heatmap(ASD_TD_TOTAL, labels, labels, 1, 'FontSize', 15, 'Colormap', 'money', 'FontSize', 15);
 title(sprintf('Total ASD-TD Confusions (%d studies)', length(Weights_TD)));
 xlabel('Output Class'); ylabel('Target Class');
 

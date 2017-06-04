@@ -1,3 +1,4 @@
+% for the CNN dataset
 % create the dataset_names_values 
 % get filenames, get Y and then create a txt file out of it 
 % FER is the weird one when the files are NOT in order. 
