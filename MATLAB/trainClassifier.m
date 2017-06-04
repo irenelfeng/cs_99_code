@@ -2,7 +2,7 @@
 % calls model_selection.m, confusion_matrix.m
 % change this line from LDA to SVM
 type = 'LDA';
-mode = 'whole'; % whole, top, bottom, local, global, blurred_top_, blurred_bottom_.
+mode = 'whole'; % whole, top, bottom, local, global, blurred_top, blurred_bottom.
 foveated = 0;
 % gets date 
 d = date; 
@@ -28,8 +28,9 @@ testY = double(Y(train+1:size(X,1)));
 
 % comment next 1 and then uncomment next two if you want to specify
 [MDL, s, o, comps] = model_selection(trainX, trainY, [2:5], 6, 5, type, mode, foveated);
-s = 3;
-o = 8;
+
+% s = 3;
+% o = 8;
 features = [];
 for i=1:size(trainX,1)
     features = [features; image_features(trainX(i,:), s, o, mode, foveated)']; % call image features 
@@ -41,7 +42,7 @@ if strcmp(type, 'LDA') == 1
     % or just regular pca if you know how many
     
     MDL = train_Mc_LDA(points,trainY);
-    predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps(:,1:159), mean(features));
+    predY = MDL_predict(MDL, testX, s, o, mode, foveated, comps, mean(features));
     f = '';
     if foveated == 1
         f = '_foveated';

@@ -7,7 +7,7 @@ elseif nargin < 5
 end
 
 J= reshape(imvec, [sqrt(length(imvec)), sqrt(length(imvec))])';
-[JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(J,0,0, 2*pi, numSizes, numOrientations); 
+[JetsMagnitude, JetsPhase, GridPosition] = GWTWgrid_Simple(J,0,0, pi, numSizes, numOrientations); 
 % we can ignore grid pos because they are the same for every image 
 if (strcmp(mode, 'local') == 1 || strcmp(mode, 'global') ==1) % either local or global
     [JetsMagnitude, JetsPhase] = getGlocalizedFeatures(JetsMagnitude,JetsPhase, numSizes, numOrientations,mode);
