@@ -62,7 +62,9 @@ function [MDL, si, or, comps] = model_selection(X, Y, sizes, orientations, N, ty
                     pca_features = trainX; 
                     % comment below if you don't want to do pca_features
                     [c, pca_features, resid] = bestPCA(trainX);
+                    sprintf('creating LDA model...')
                     MDL = train_Mc_LDA(pca_features, trainY);
+                    
                     
                     test_features_pca = (test_features - repmat(feat_mean,size(test_features, 1), 1))*c;
                     for i=1:length(pred_Y)
