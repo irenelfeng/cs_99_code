@@ -3,7 +3,7 @@
 % change this line from LDA to SVM
 type = 'LDA';
 mode = 'whole'; % whole, top, bottom, local, global, blurred_top, blurred_bottom.
-foveated = 0;
+foveated = 0; % 0 or 1
 % gets date 
 d = date; 
 

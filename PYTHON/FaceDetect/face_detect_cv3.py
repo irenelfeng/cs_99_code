@@ -17,14 +17,16 @@ if not os.path.exists(facedir):
     os.makedirs(facedir)
 # Read the image
 for imagePath in os.listdir(directory):
-    image = cv2.imread(directory+'/'+imagePath, 0) # autoconverts to grayscale
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if 'jpg' not in imagePath:
+        continue 
+    image = cv2.imread(directory+'/'+imagePath) # 0 autoconverts to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Detect faces in the image
     faces = faceCascade.detectMultiScale(
-        image,
+        gray,
         scaleFactor=1.01,
         minNeighbors=5,
-        minSize=(100, 100), # (30,30) for FER images 
+        minSize=(200, 200), # (30,30) for FER images 
     )
 
     if len(faces) == 0: 
@@ -40,7 +42,7 @@ for imagePath in os.listdir(directory):
     # crops the image at this rectangle 
     (x, y, w, h) = faces[0]
     # print (x, y, w, h)
-    crop_img = image[y:y+h, x:x+w] # Crop from x, y, w, h -> 100, 200, 300, 400
+    crop_img = image[y:y+h, x:x+w, :] # Crop from x, y, w, h -> 100, 200, 300, 400
     # NOTE: its img[y: y + h, x: x + w] and *not* img[x: x + w, y: y + h]
     # scales crop to be square, i guess the closest square <= area 
     s = int(round(math.sqrt(w*h)))

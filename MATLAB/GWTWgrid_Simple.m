@@ -154,7 +154,7 @@ for LevelL = 0:nScale-1
         % this kernel has values in the 
         % visualizing kernels in spatial domain
 %         subplot(nScale, nOrientation, LevelL*nOrientation+DirecL+1);
-         imagesc(fftshift(real(ifft2(FreqKernel))));
+         % imagesc(fftshift(real(ifft2(FreqKernel))));
 %         colormap gray;
 %         title(sprintf('size %d, orientation %d', LevelL, DirecL));
 %         

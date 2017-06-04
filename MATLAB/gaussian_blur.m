@@ -2,7 +2,7 @@
 % both bottom_blur and top_blur and saves it into X_top and X_bottom
 % matrices
 
-% UNCOMMENT FOR OLD FER STUFF
+% UNCOMMENT FOR OLD FER IMAGES
 % loop through all the files
 % directory = 'fer2013imgs/original';
 
@@ -10,11 +10,11 @@
 % length(files')
 
 
-% UNCOMMENT THESE TO MAKE topX and bottomX! 
-% load('data/128X.mat');
-% top128X = zeros(length(files'),128*128);
-% bottom128X = zeros(length(files'),128*128);
-% 
+% UNCOMMENT THESE TO MAKE topX and bottomX: nonCNN
+load('data/128X.mat');
+top128X = zeros(length(files'),128*128);
+bottom128X = zeros(length(files'),128*128);
+
 % for file = 1:size(X,1)
 %     
 %     im = reshape(X(file,:), [128, 128])';
@@ -37,19 +37,20 @@ for file = files'
     parts = strsplit(root, '/'); 
     folder = parts(end); % cell
     
-% END CNN stuff
     [im_top_blur, im_bottom_blur] = blur_image(im);
+    % add to X.mat 
     
+    % comment 4 lines for cnn 
+    im_top_blur = im_top_blur'; % store it column wise because stupid
+    im_bottom_blur = im_bottom_blur'; % store it column wise because stupid
+    bottom128X(file,:) = im_top_blur(:);  
+    top128X(file,:) = im_bottom_blur(:);
+    
+% END noncnn stuff - uncomment below for cnn 
      %imwrite(uint8(im_top_blur),['fer2013imgs/topblur/',file.name]);
      %imwrite(uint8(im_bottom_blur),['fer2013imgs/bottomblur/',file.name]);
-     imwrite(uint8(im_top_blur),sprintf('%s/bottom/%s/%s%s',directory,folder{1},name,ext));
-     imwrite(uint8(im_bottom_blur),sprintf('%s/top/%s/%s%s',directory,folder{1},name,ext));
-    
-% add to X.mat 
-%     im_top_blur = im_top_blur'; % store it column wise because stupid
-%     im_bottom_blur = im_bottom_blur'; % store it column wise because stupid
-%     bottom128X(file,:) = im_top_blur(:);  
-%     top128X(file,:) = im_bottom_blur(:);
+%      imwrite(uint8(im_top_blur),sprintf('%s/bottom/%s/%s%s',directory,folder{1},name,ext));
+%      imwrite(uint8(im_bottom_blur),sprintf('%s/top/%s/%s%s',directory,folder{1},name,ext));
     
 end
 

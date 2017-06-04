@@ -1,7 +1,7 @@
-Xlabels_pos_neg = {'','Negative','','', 'Nonnegative'};
+Xlabels_pos_neg = {'','','Negative','','','','', 'Nonnegative',''};
 Xlabels_emotions = {'','Anger','Disgust','Sad','Fear','Surprise','Neutral','Happy'};
 
-%% CNN bottom top
+%% CNN bottom top blurred
 noFERtop = load('data/network_results_top_val_1mil_noFER.mat');
 noFERtoptestY = reorder_alphabetical_answers(noFERtop.testY);
 noFERtoppredY = reorder_alphabetical_answers(noFERtop.predY);
@@ -27,9 +27,10 @@ for i=1:2
         errors(i, j, :) = [phat - pci(1), pci(2) - phat];
     end
 end
-graphErrorBarsonGrouped(CNN_bottop_neg_pos, errors, Xlabels_pos_neg,{'CNN top sharp', 'CNN bottom sharp'});
+graphErrorBarsonGrouped(CNN_bottop_neg_pos, errors, Xlabels_pos_neg,{'CNN top focus', 'CNN bottom focus'});
 xlabel('Expression');
 ylabel('Proportion Correct');
+ylim([0.2, 1]);
 
 totalsNOFER = repmat([46   196    44    41    57    39    58]', 2); 
 errors = zeros(7, 2, 2);
@@ -39,20 +40,19 @@ for i=1:7
         errors(i, j, :) = [phat - pci(1), pci(2) - phat];
     end
 end
-graphErrorBarsonGrouped(CNN_top_bot, errors, Xlabels_pos_neg,{'CNN top sharp', 'CNN bottom sharp'});
+graphErrorBarsonGrouped(CNN_top_bot, errors, Xlabels_emotions,{'CNN top sharp', 'CNN bottom sharp'});
 xlabel('Expression');
 ylabel('Proportion Correct');
 
-% top_black = load('data/network_results_top_black_val_noFER.mat');
-% top_blacktestY = reorder_alphabetical_answers(top_black.testY);
-% top_blackpredY =  reorder_alphabetical_answers(top_black.predY);
-bot_black = load('data/network_results_bottom_black_val_noFER.mat');
+%% CNN bottom top
+top_black = load('data/network_results_top_black_val_320k_noFER.mat');
+top_blacktestY = reorder_alphabetical_answers(top_black.testY);
+top_blackpredY =  reorder_alphabetical_answers(top_black.predY);
+bot_black = load('data/network_results_bottom_black_val_320k_noFER.mat');
 bot_blacktestY = reorder_alphabetical_answers(bot_black.testY);
 bot_blackpredY =  reorder_alphabetical_answers(bot_black.predY);
-% num = diag(confusionmat(top_blacktestY, top_blackpredY)); 
-% den = sum(confusionmat(top_blacktestY, top_blackpredY), 2);
-num = repmat(.5, 1, 7)';
-den = ones(7, 1);
+num = diag(confusionmat(top_blacktestY, top_blackpredY)); 
+den = sum(confusionmat(top_blacktestY, top_blackpredY), 2);
 numb = diag(confusionmat(bot_blacktestY, bot_blackpredY)); 
 denb = sum(confusionmat(bot_blacktestY, bot_blackpredY), 2);
 CNN_top = num./den;
@@ -74,6 +74,18 @@ graphErrorBarsonGrouped(CNN_bottop_neg_pos, errors, Xlabels_pos_neg,{'CNN top ha
 xlabel('Expression');
 ylabel('Proportion Correct');
 
+totalsNOFER = repmat([46   196    44    41    57    39    58]', 2); 
+errors = zeros(7, 2, 2);
+for i=1:7
+    for j=1:2
+        [phat, pci] = binofit(round(CNN_top_bot(i, j)*totalsNOFER(i,j)), totalsNOFER(i,j)); 
+        errors(i, j, :) = [phat - pci(1), pci(2) - phat];
+    end
+end
+graphErrorBarsonGrouped(CNN_top_bot, errors, Xlabels_emotions,{'CNN top half', 'CNN bottom half'});
+xlabel('Expression');
+ylabel('Proportion Correct');
+
 %% NON-CNN bottom top 
 load('data/128Y.mat');
 train = floor(9/10*length(Y));
@@ -82,8 +94,6 @@ testY = double(reorder_alphabetical_answers(Y(train+1:length(Y))));
 load('predYbottomblurred.mat');
 load('predYbottomfoveated.mat');
 load('predYbottomhalve.mat');
-load('predYglobal.mat');
-load('predYlocal.mat');
 load('predYtopblurred.mat');
 load('predYtopfoveated.mat');
 load('predYtophalve.mat');
@@ -91,8 +101,6 @@ load('predYtophalve.mat');
 load('predYbottomblurredAda.mat');
 load('predYbottomfoveatedAda.mat');
 load('predYbottomhalveAda.mat');
-load('predYglobalAda.mat');
-load('predYlocalAda.mat');
 load('predYtopblurredAda.mat');
 load('predYtopfoveatedAda.mat');
 load('predYtophalveAda.mat');
@@ -117,6 +125,7 @@ for pred = 1:2:size(predictions,1)
 end
 
 %% POS_NEG_STUFF
+leg = [{'Top Half','Bottom Half'}, {'Top Foveated','Bottom Foveated'}, {'Top Focus','Bottom Focus'}];
 totals = [414 389;414 389]; % neg/noneg row (noFER / wFER) 
 for test=1:size(sum_pos,1)
     neg_pos = [sum_neg(test, :); sum_pos(test, :)];
@@ -127,7 +136,7 @@ for test=1:size(sum_pos,1)
             errors(i, j, :) = [phat - pci(1), pci(2) - phat];            
         end
     end
-    h = graphErrorBarsonGrouped(neg_pos, errors, {'','','Negative','','','','', 'Nonnegative',''}, {'Top Half','Bottom Half'});
+    h = graphErrorBarsonGrouped(neg_pos, errors, Xlabels_pos_neg, leg(test*2-1:test*2));
     xlabel('Expression');
     ylabel('Proportion Correct');
     ylim([.5, 1]);
@@ -167,7 +176,7 @@ for test=1:2:size(barplot,1)
             errors(i, j, :) = [phat - pci(1), pci(2) - phat];            
         end
     end
-    h = graphErrorBarsonGrouped(emotions, errors, {'Anger','Disgust','Sad', 'Fear', 'Surprise', 'Neutral', 'Happy'}, {'Top Half','Bottom Half'});
+    h = graphErrorBarsonGrouped(emotions, errors, {'Anger','Disgust','Sad', 'Fear', 'Surprise', 'Neutral', 'Happy'}, leg(test:test+1));
     ylim([.5, 1]);
     xlabel('Expression');
     ylabel('Proportion Correct'); 
@@ -181,6 +190,10 @@ difference_from_literature = (repmat(literature, size(barplot, 1), 1) - barplot)
 sum(difference_from_literature, 2); 
 
 %% OVERALL EMOTION - LOCAL GLOBAL
+load('predYglobal.mat');
+load('predYlocal.mat');
+load('predYglobalAda.mat');
+load('predYlocalAda.mat');
 locals = [predYglobal'; predYlocal']; %; predYglobalAda'; predYlocalAda';];
 glocal = zeros(7,2);
 % for pred = 1:2:4

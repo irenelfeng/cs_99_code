@@ -1,10 +1,10 @@
 %% UNIT TEST FOR GABOR JET
 
-sprintf('TESTING FOR GABOR JET'); 
+disp('TESTING FOR GABOR JET'); 
 
-load('X.mat');
+load('128X.mat');
 
-J = reshape(X(2,:), [48 48])';
+J = reshape(X(2,:), [128 128])';
 [wholeGridMag, wholeGridPhase, wholeGridPos] = GWTWgrid_Simple(J,0,0, 2*pi, 2, 8); 
 
-sprintf('TESTING PASSED') 
+disp('TESTING PASSED'); 

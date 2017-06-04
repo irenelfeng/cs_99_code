@@ -27,8 +27,7 @@ predY =  MDL_predict(MDL, testX, si, or);
 % save(sprintf('MDL_comp s%do%d', si, or), 'comps');
 % predY = MDL_predict(MDL, testX, si, or, comps);
 
-save(sprintf(
-'MDL_SVMs%do%d', si, or), 'MDL'); % add PCA to line if you want PCA
+save(sprintf('MDL_SVMs%do%d', si, or), 'MDL'); % add PCA to line if you want PCA
 
 error = sum(testY - predY ~= 0)/(length(predY));
 confusion_matrix(predY, testY, sprintf('confusionSVMandPCA%s-s%ds-o%d.png', size(comps,2), si, or), sprintf('SVM Whole, s%ds-o%d', si, or));
