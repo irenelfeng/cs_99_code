@@ -54,7 +54,7 @@ switch mode
 
         end
         features = Total;
-    otherwise
+    otherwise % blurred_top, blurred_bottom also all the features. 9680
         features = [JetsMagnitude(:); JetsPhase(:)];
     
 end
