@@ -12,31 +12,34 @@
 
 % UNCOMMENT THESE TO MAKE topX and bottomX: nonCNN
 load('data/128X.mat');
+files = zeros(size(X,1));
 top128X = zeros(length(files'),128*128);
 bottom128X = zeros(length(files'),128*128);
 
-% for file = 1:size(X,1)
-%     
-%     im = reshape(X(file,:), [128, 128])';
+for file = 1:size(X,1)
+    if mod(file, 100) == 0
+        sprintf('generating image %d',  file)
+    end
+    im = reshape(X(file,:), [128, 128])';
 
 % UNCOMMENT THESE ALL THESE LINES FOR DOING ALL THE CNN IMAGES
 % directory = '../../CNN_48_images'; 
 % mkdir(directory,'/top');
 % mkdir(directory,'/bottom');
 % files = glob([directory,'/**.*G'], '-ignorecase');
-
-for file = files'
-    if ~isempty(strfind(file{1}, 'val')) || ~isempty(strfind(file{1}, 'bottom')) || ~isempty(strfind(file{1}, 'top'))
-        continue
-    end
-   im =imread(file{1}); 
-    if size(im, 3) == 3
-        im = rgb2gray(im);
-    end
-    [root, name, ext] = fileparts(file{1}); 
-    parts = strsplit(root, '/'); 
-    folder = parts(end); % cell
+% for file = files'
+%     if ~isempty(strfind(file{1}, 'val')) || ~isempty(strfind(file{1}, 'bottom')) || ~isempty(strfind(file{1}, 'top'))
+%         continue
+%     end
+%    im =imread(file{1}); 
+%     if size(im, 3) == 3
+%         im = rgb2gray(im);
+%     end
+%     [root, name, ext] = fileparts(file{1}); 
+%     parts = strsplit(root, '/'); 
+%     folder = parts(end); % cell
     
+% END CNN 
     [im_top_blur, im_bottom_blur] = blur_image(im);
     % add to X.mat 
     
@@ -54,5 +57,5 @@ for file = files'
     
 end
 
-% save top128X.mat top128X
-% save bottom128X.mat bottom128X
+save data/top128X.mat top128X
+save data/bottom128X.mat bottom128X
