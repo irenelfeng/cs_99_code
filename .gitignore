@@ -4,5 +4,4 @@
 *.asv
 *~
 MATLAB/figures/*
-MATLAB/data/*128X.mat
 MATLAB/*MDL_*.mat
